@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>VideoPiece</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			html, body {
+				height: 100%;
+				overflow: hidden;
+			}
+			#blocker {
+				position: absolute;
+				/* background-color: rgba(255, 0, 0, 0.5); */
+				top: 0px;
+				left: 0px;
+				width: 100%;
+				height: 100%;
+			}
+		</style>
+	</head>
+	<body>
+        <script src="js/PerlinNoiseSimplex.js"></script>
+		<script src="js/three.js"></script>
+		<script src="js/CSS3DRenderer.js"></script>
+        <script src="js/PointerLockControls.js"></script>
+        <script src="js/TextToSpeech.js"></script>
+        
+		<div id="container"></div>
+		<div id="blocker"></div>
+
+		<script>
+            var scope = this;
+            
+            var player;
+        
+			var camera, cssScene, glScene, cssRenderer, glRenderer;
+			var controls;
+                        
+            function setUpYoutubeAPI(){
+                var tag = document.createElement('script');
+
+                tag.src = "https://www.youtube.com/iframe_api";
+                var scriptArray = document.getElementsByTagName('script');
+                var firstScriptTag = scriptArray[0];
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                console.log(scriptArray[0]);
+            }
+            
+            function onYouTubeIframeAPIReady() {
+                var element = new Element( 'M7lc1UVf-VE', 0, -1000, 0, 480, 360 );
+                console.log("Heyo" + element);
+                cssScene.add(element);
+            }
+                
+            function onPlayerReady(event) {
+                console.log("PLAYER READY!");
+                event.target.playVideo();
+            }
+
+                // 5. The API calls this function when the player's state changes.
+                //    The function indicates that when playing a video (state=1),
+                //    the player should play for six seconds and then stop.
+            var done = false;
+            function onPlayerStateChange(event) {
+                if (event.data == YT.PlayerState.PLAYING && !done) {
+                    setTimeout(stopVideo, 6000);
+                    done = true;
+                }
+            };
+            function stopVideo() {
+                player.stopVideo();
+            };
+            
+            var players = [];
+                                            
+			var Element = function ( id, x, z, ry, width, height ) {
+                if(width === undefined)
+                    width = 480;
+                if(height === undefined)
+                    height = 360;
+                
+				var div = document.createElement( 'div' );
+                div.setAttribute('id', 'player' + players.length.toString());
+				div.style.width = width.toString() + 'px';
+				div.style.height = height.toString() + 'px';
+				div.style.backgroundColor = '#000';
+                
+                var iframe = document.createElement('iframe');
+				iframe.style.width = width.toString() + 'px';
+				iframe.style.height = height.toString() + 'px';
+				iframe.style.border = '0px';
+//				iframe.src = [ 'https://www.youtube.com/embed/', '?listType=search&list=nature video ', id ].join( '' );
+                 
+                iframe.src = [ 'https://www.youtube.com/embed/', id, '?autoplay=0' ].join( '' );
+
+                div.appendChild(iframe);
+                                        
+				var object = new THREE.CSS3DObject( div );
+                
+                var y = globalNoise.noise(x,z);
+                
+                var material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, wireframe: true });
+                var geometry = new THREE.PlaneGeometry(width, height);
+                var planeMesh= new THREE.Mesh( geometry, material );
+                planeMesh.position.set(x,y,z);
+                planeMesh.rotation.y = ry;
+                // add it to the WebGL scene
+                glScene.add(planeMesh);
+                
+                console.log(planeMesh);
+                                    
+				object.position.set(x,y,z);
+				object.rotation.y = ry;
+                
+                
+				return object;
+
+			};
+
+			init();
+			RunApp();
+
+			function init() {
+                
+                this.clock = new THREE.Clock();
+
+				var container = document.getElementById( 'container' );
+
+				camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 10 );
+
+				cssScene = new THREE.Scene();
+                glScene = new THREE.Scene();
+
+				cssRenderer = new THREE.CSS3DRenderer();
+				cssRenderer.setSize( window.innerWidth, window.innerHeight );
+				cssRenderer.domElement.style.position = 'absolute';
+				cssRenderer.domElement.style.top = 0;
+				container.appendChild( cssRenderer.domElement );
+                
+                glRenderer = new THREE.WebGLRenderer();
+                glRenderer.setSize(window.innerWidth, window.innerHeight);
+                
+                glRenderer.domElement.style.position	= 'absolute';
+                glRenderer.domElement.style.top	= 0;
+                glRenderer.domElement.style.zIndex	= -1;
+                glRenderer.setClearAlpha(0);
+                container.appendChild(glRenderer.domElement);
+                
+
+                glScene.add(camera);
+//				this.group = new THREE.Group();
+//				group.add( new Element( 'M7lc1UVf-VE', 0, 240, 0 ) );
+//				group.add( new Element( 'grass in wind', 240, 0, Math.PI / 2 ) );
+//				group.add( new Element( 'fir trees', 0, - 240, Math.PI ) );
+//				group.add( new Element( 'water', - 240, 0, - Math.PI / 2 ) );
+//				cssScene.add( group );
+            
+                
+                setUpYoutubeAPI();
+                
+				controls = new THREE.PointerLockControls( camera, cssScene );
+//				controls.rotateSpeed = 4;
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				// Block iframe events when dragging camera
+//				var blocker = document.getElementById( 'blocker' );
+//				blocker.style.display = 'none';
+                
+			}
+            
+            
+
+			function onWindowResize() {
+                
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				cssRenderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+            
+            function update(){
+//                var delta = clock.getDelta();
+//                for(var i = 0; i < objectArray.length; i++){
+//                    objectArray[i].position.translate += 0.01;
+//                }
+//                controls.update(delta);
+                
+                controls.update();
+            }
+            
+            function draw(){
+                glRenderer.render(glScene, camera);
+
+                cssRenderer.render( cssScene, camera );
+            }
+
+			function RunApp() {
+
+				requestAnimationFrame( RunApp );
+				update();
+                draw();
+
+			}
+
+		</script>
+	</body>
+</html>
