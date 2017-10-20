@@ -21,180 +21,72 @@
 		</style>
 	</head>
 	<body>
-        <script src="js/PerlinNoiseSimplex.js"></script>
+        <div id="container"></div>
+        <div id="blocker"></div>
+        
+        <video muted id="marioSkyVideo" src="videos/SkyVid2.mp4" autoplay=true loop=true style="display:none" width="512" height="256"></video>
+        <video muted id="skyVideo" src="videos/FreemediabankSky.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
+        <video muted id="grassVideo" src="videos/GrassVid2.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
+        <video muted id="treeVideo" src="videos/OakVid.mp4" autoplay=true loop=true style="display:none"></video>
+
+                
+        
 		<script src="js/three.js"></script>
+        <script src="js/holoplay.js"></script>
+        <script src="js/PerlinNoiseSimplex.js"></script>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous">
+        </script>
+
 		<script src="js/CSS3DRenderer.js"></script>
         <script src="js/PointerLockControls.js"></script>
         <script src="js/TextToSpeech.js"></script>
-        
-		<div id="container"></div>
-		<div id="blocker"></div>
+        <script src="js/TerrainGenerator.js"></script>
+        <script src="js/GlobeScene.js"></script>
+        <script src="js/VideoScene.js"></script>
 
+		
 		<script>
-            var scope = this;
-            
-            var player;
-        
-			var camera, cssScene, glScene, cssRenderer, glRenderer;
-			var controls;
-                        
-            function setUpYoutubeAPI(){
-                var tag = document.createElement('script');
+            (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);})()
 
-                tag.src = "https://www.youtube.com/iframe_api";
-                var scriptArray = document.getElementsByTagName('script');
-                var firstScriptTag = scriptArray[0];
-                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-                console.log(scriptArray[0]);
-            }
-            
-            function onYouTubeIframeAPIReady() {
-                var element = new Element( 'M7lc1UVf-VE', 0, -1000, 0, 480, 360 );
-                console.log("Heyo" + element);
-                cssScene.add(element);
-            }
-                
-            function onPlayerReady(event) {
-                console.log("PLAYER READY!");
-                event.target.playVideo();
-            }
+            var clock = new THREE.Clock();
 
-                // 5. The API calls this function when the player's state changes.
-                //    The function indicates that when playing a video (state=1),
-                //    the player should play for six seconds and then stop.
-            var done = false;
-            function onPlayerStateChange(event) {
-                if (event.data == YT.PlayerState.PLAYING && !done) {
-                    setTimeout(stopVideo, 6000);
-                    done = true;
-                }
-            };
-            function stopVideo() {
-                player.stopVideo();
-            };
-            
-            var players = [];
-                                            
-			var Element = function ( id, x, z, ry, width, height ) {
-                if(width === undefined)
-                    width = 480;
-                if(height === undefined)
-                    height = 360;
-                
-				var div = document.createElement( 'div' );
-                div.setAttribute('id', 'player' + players.length.toString());
-				div.style.width = width.toString() + 'px';
-				div.style.height = height.toString() + 'px';
-				div.style.backgroundColor = '#000';
-                
-                var iframe = document.createElement('iframe');
-				iframe.style.width = width.toString() + 'px';
-				iframe.style.height = height.toString() + 'px';
-				iframe.style.border = '0px';
-//				iframe.src = [ 'https://www.youtube.com/embed/', '?listType=search&list=nature video ', id ].join( '' );
-                 
-                iframe.src = [ 'https://www.youtube.com/embed/', id, '?autoplay=0' ].join( '' );
-
-                div.appendChild(iframe);
-                                        
-				var object = new THREE.CSS3DObject( div );
-                
-                var y = globalNoise.noise(x,z);
-                
-                var material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, wireframe: true });
-                var geometry = new THREE.PlaneGeometry(width, height);
-                var planeMesh= new THREE.Mesh( geometry, material );
-                planeMesh.position.set(x,y,z);
-                planeMesh.rotation.y = ry;
-                // add it to the WebGL scene
-                glScene.add(planeMesh);
-                
-                console.log(planeMesh);
-                                    
-				object.position.set(x,y,z);
-				object.rotation.y = ry;
-                
-                
-				return object;
-
-			};
-
-			init();
-			RunApp();
-
-			function init() {
-                
-                this.clock = new THREE.Clock();
-
-				var container = document.getElementById( 'container' );
-
-				camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 10 );
-
-				cssScene = new THREE.Scene();
-                glScene = new THREE.Scene();
-
-				cssRenderer = new THREE.CSS3DRenderer();
-				cssRenderer.setSize( window.innerWidth, window.innerHeight );
-				cssRenderer.domElement.style.position = 'absolute';
-				cssRenderer.domElement.style.top = 0;
-				container.appendChild( cssRenderer.domElement );
-                
-                glRenderer = new THREE.WebGLRenderer();
-                glRenderer.setSize(window.innerWidth, window.innerHeight);
-                
-                glRenderer.domElement.style.position	= 'absolute';
-                glRenderer.domElement.style.top	= 0;
-                glRenderer.domElement.style.zIndex	= -1;
-                glRenderer.setClearAlpha(0);
-                container.appendChild(glRenderer.domElement);
-                
-
-                glScene.add(camera);
-//				this.group = new THREE.Group();
-//				group.add( new Element( 'M7lc1UVf-VE', 0, 240, 0 ) );
-//				group.add( new Element( 'grass in wind', 240, 0, Math.PI / 2 ) );
-//				group.add( new Element( 'fir trees', 0, - 240, Math.PI ) );
-//				group.add( new Element( 'water', - 240, 0, - Math.PI / 2 ) );
-//				cssScene.add( group );
-            
-                
-                setUpYoutubeAPI();
-                
-				controls = new THREE.PointerLockControls( camera, cssScene );
-//				controls.rotateSpeed = 4;
-
-				window.addEventListener( 'resize', onWindowResize, false );
-
-				// Block iframe events when dragging camera
-//				var blocker = document.getElementById( 'blocker' );
-//				blocker.style.display = 'none';
-                
-			}
+            var camera, scene, renderer, controls;
             
             
+            
+//            camera = vidCamera;
+//            scene = vidScene;
+//            renderer = vidRenderer;
+//            controls = vidControls;
+            
+            
+//            controls = vidControls;
 
 			function onWindowResize() {
                 
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
-				cssRenderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setSize( window.innerWidth, window.innerHeight );
 
 			}
             
             function update(){
-//                var delta = clock.getDelta();
-//                for(var i = 0; i < objectArray.length; i++){
-//                    objectArray[i].position.translate += 0.01;
-//                }
-//                controls.update(delta);
-                
-                controls.update();
+                var delta = clock.getDelta();
+                            
+                if(controls)
+                    controls.vidUpdate(delta);
             }
             
+//            window.onload() = function(){
+//                window.speechSynthesis.cancel();
+//            }
+            
             function draw(){
-                glRenderer.render(glScene, camera);
-
-                cssRenderer.render( cssScene, camera );
+//                renderer.render(scene, camera);
+                holoPlay.render(scene, camera, renderer);
             }
 
 			function RunApp() {
@@ -204,6 +96,20 @@
                 draw();
 
 			}
+            
+            window.addEventListener( 'resize', onWindowResize, false );
+            
+            vidInit();
+
+            camera = vidCamera;
+            scene = vidScene;
+            renderer = vidRenderer;
+            controls = vidControls;
+            console.log(vidScene);
+//            controls = new THREE.PointerLockControls( globeCamera, globeScene, true );
+            var holoPlay = new HoloPlay(vidScene, vidCamera, vidRenderer, 32, 40);
+
+			RunApp();
 
 		</script>
 	</body>

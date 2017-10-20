@@ -10,19 +10,6 @@ THREE.CSS3DObject = function ( element ) {
 	this.element = element;
     
 	this.element.style.position = 'absolute';
-
-//    console.log("Raw element: " + element.innerHTML);
-//    //For some reason, this STILL doesn't let me access the element
-//    player = new YT.Player(element, {
-//        border: '0px',
-//        videoId: id,
-//        events: {
-//          'onReady': onPlayerReady,
-//          'onStateChange': onPlayerStateChange
-//        }
-//    });
-    
-//    console.log("Player element: " + player);
     
 	this.addEventListener( 'removed', function () {
 

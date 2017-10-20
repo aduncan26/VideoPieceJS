@@ -3,7 +3,7 @@
  */
 
 
-THREE.PointerLockControls = function ( camera, scene ) {
+THREE.PointerLockControls = function ( camera, scene, globeControls ) {
 
 	var scope = this;
 
@@ -21,13 +21,13 @@ THREE.PointerLockControls = function ( camera, scene ) {
         scope.enabled = true;
     }, false);
     
-  document.addEventListener('pointerlockchange', function(event){
-      if(document.pointerLockElement !== document.body &&
-         document.mozPointerLockElement !== document.body && 
-         document.webkitRequestPointerLock !== document.body){
-          scope.enabled = false;
-      }
-  }, false);
+    document.addEventListener('pointerlockchange', function(event){
+        if(document.pointerLockElement !== document.body &&
+           document.mozPointerLockElement !== document.body && 
+           document.webkitRequestPointerLock !== document.body){
+            scope.enabled = false;
+        }
+    }, false);
 
 
     var yawObject;
@@ -35,6 +35,15 @@ THREE.PointerLockControls = function ( camera, scene ) {
 	yawObject.position.y = 10;
 	yawObject.add( pitchObject );
     scene.add(yawObject);
+    
+    var centerObj;
+    if(globeControls){
+        centerObj = new THREE.Object3D();
+        centerObj.add(yawObject);
+        yawObject.position.y = -99.9;
+        scene.add(centerObj);
+    }
+        
 
 	var PI_2 = Math.PI / 2;
     
@@ -45,7 +54,8 @@ THREE.PointerLockControls = function ( camera, scene ) {
     
     var vector = new THREE.Vector3();
     var worldUp = new THREE.Vector3(0,1,0);
-    var speedVector = new THREE.Vector3(10,10,10);
+    var speedVector = new THREE.Vector3();
+    var speed = 50;
 
 	var onMouseMove = function ( event ) {
         
@@ -108,22 +118,22 @@ THREE.PointerLockControls = function ( camera, scene ) {
     document.addEventListener('keydown', function(event){keyDown(event)}, false);
     document.addEventListener('keyup', function(event){keyUp(event)}, false);
 
-    this.update = function(){
+    this.vidUpdate = function(deltaTime){
         camera.getWorldDirection(vector);
                 
         var crossProd = new THREE.Vector3();
         crossProd.crossVectors(vector, worldUp);
 
-        var speed = 10;
-
         //Prevent the direction of the camera from effecting
         //up and down directions
         vector.y = 0;
         crossProd.y = 0;
+        
+        speedVector.set(speed * deltaTime, speed * deltaTime, speed * deltaTime);
 
         vector.normalize();
         crossProd.normalize();
-
+        
         vector.multiply(speedVector);
         crossProd.multiply(speedVector);
 
@@ -140,7 +150,22 @@ THREE.PointerLockControls = function ( camera, scene ) {
             yawObject.position.addVectors(yawObject.position, crossProd);
         }
         
-        yawObject.position.y = globalNoise.noise(yawObject.position.x, yawObject.position.z);
+        yawObject.position.y = globalNoise.noise(yawObject.position.x, yawObject.position.z) + 10;
+    }
+    
+    this.globeUpdate = function(deltaTime){
+        if(moveForward){
+            centerObj.rotation.x += 0.1 * deltaTime;
+        }
+        if(moveBackward){
+//            yawObject.position.addVectors(yawObject.position, vector.negate());
+        }
+        if(moveLeft){
+//            yawObject.position.addVectors(yawObject.position, crossProd.negate());
+        }
+        if(moveRight){
+//            yawObject.position.addVectors(yawObject.position, crossProd);
+        }
     }
     
 	this.getObject = function () {
