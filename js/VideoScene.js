@@ -1,39 +1,16 @@
 var scope = this;
                     
-var vidCamera, vidScene, vidRenderer;
-var vidControls;
-
-var video = document.getElementById( 'treeVideo' );
-
-var vidTex1 = new THREE.VideoTexture(video);
-vidTex1.minFilter = THREE.LinearFilter;
-vidTex1.magFilter = THREE.LinearFilter;
-vidTex1.format = THREE.RGBFormat;
-var vidMat1 = new THREE.MeshBasicMaterial({map: vidTex1, side: THREE.DoubleSide});
-
-var grassVideo = document.getElementById('grassVideo');
-var grassTex = new THREE.VideoTexture(grassVideo, THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping, THREE.NearestFilter, THREE.NearestFilter);
-grassTex.repeat.set( 1, 1 );
-
-
-var skyVideo = document.getElementById('skyVideo');
-
-var skyTex = new THREE.VideoTexture(skyVideo, THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping, THREE.NearestFilter, THREE.NearestFilter);
-skyTex.repeat.set(2, 2);
-var skyGeo = new THREE.SphereGeometry(2000, 64, 64);
-var skyMat = new THREE.MeshBasicMaterial({map: skyTex, side: THREE.BackSide})
-var sky = new THREE.Mesh(skyGeo, skyMat);
-
 function createVideoObject(xPos, zPos, yRot, width, height, material){
-    var vidGeo = new THREE.PlaneGeometry(width, height);
-    var vidPlane = new THREE.Mesh(vidGeo, material);
+    let vidGeo = new THREE.PlaneGeometry(width, height);
+    let vidPlane = new THREE.Mesh(vidGeo, material);
 
-    var yPos = globalNoise.noise(xPos, zPos) + height/2;
+    let yPos = globalNoise.noise(xPos, zPos) + height/2;
 
     vidPlane.position.set(xPos, yPos, zPos);
     vidPlane.rotation.y = yRot;
 
-    vidScene.add(vidPlane);
+    scene.add(vidPlane);
+    allClickableObjects.push(vidPlane);
 }
 
 var openWindows = [];
@@ -77,40 +54,69 @@ function closeAllWindows(){
     console.log(openWindows.length);
 }
 
-function vidInit() {
-
-    var container = document.getElementById( 'container' );
-
-
-    vidCamera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
-
-    vidScene = new THREE.Scene();
-
-    vidScene.add(vidCamera);
-    vidScene.add(sky);
-    var terrain;
+function changeVideoSpeed(speed){
     
-//    vidScene.add(googleGlobe);
-
-    generateTerrain(terrain, vidScene);
-
-    vidRenderer = new THREE.WebGLRenderer();
-    vidRenderer.setSize(window.innerWidth, window.innerHeight);
-
-    for(var i = 0; i < 150; i++){
-        var x = (Math.random() - 0.5) * 2000;
-        var z = (Math.random() - 0.5) * 2000;
-        var rotY = 0;//Math.random() * Math.PI;
-        createVideoObject(x, z, rotY, 100, 100, vidMat1);
+    for(let i = 0; i < videoArray.length; i++){
+        videoArray[i].playbackRate = speed;
     }
-
-//                for(var i = 0; i < urls.length; i++){
-//                    launchImageWindow(urls[i]);
-//                }
-
-    document.body.appendChild(vidRenderer.domElement);
-
-    vidControls = new THREE.PointerLockControls( vidCamera, vidScene );
 }
 
-window.addEventListener('keydown', function(event){if(event.keycode===81) closeAllWindows();});
+function createTrees(){
+    
+    let video = document.getElementById( 'treeVideo' );
+    videoArray.push(video);
+
+    let treeTex = new THREE.VideoTexture(video);
+    treeTex.minFilter = THREE.LinearFilter;
+    treeTex.magFilter = THREE.LinearFilter;
+    treeTex.format = THREE.RGBFormat;
+    let treeMat = new THREE.MeshBasicMaterial({map: treeTex, side: THREE.DoubleSide});
+    
+    var camFacing = new THREE.Vector3();
+    camFacing.addVectors(camera.position, camera.getWorldDirection());
+    camFacing.multiplyScalar(12);
+    createVideoObject(camFacing.x, camFacing.z, 0, 80, 80, treeMat);
+    
+    for(var i = 0; i < 150; i++){
+        let x = (Math.random() - 0.5) * 2000;
+        let z = (Math.random() - 0.5) * 2000;
+        let w = 80 + (Math.random()) * 20;
+        while(Math.abs(x) < 50 && Math.abs(z) < 15){
+            z *= 1.1;
+        }
+        var rotY = 0;//Math.random() * Math.PI;
+        createVideoObject(x, z, rotY, w, w, treeMat);
+    }
+}
+
+function createSky(){
+    let skyVideo = document.getElementById('skyVideo');
+    videoArray.push(skyVideo);
+    
+    let skyTex = new THREE.VideoTexture(skyVideo, THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping, THREE.NearestFilter, THREE.NearestFilter);
+    skyTex.repeat.set(2, 2);
+    let skyGeo = new THREE.SphereGeometry(2000, 64, 64);
+    let skyMat = new THREE.MeshBasicMaterial({map: skyTex, side: THREE.BackSide})
+    let sky = new THREE.Mesh(skyGeo, skyMat);
+    scene.add(sky);
+}
+
+function createMice(){
+    
+}
+
+function createFox(){
+    
+}
+
+function createSceneObjects(){
+    createSky();
+    
+    var terrain;
+    generateTerrain(terrain, scene);
+
+    createTrees();
+    
+}
+
+

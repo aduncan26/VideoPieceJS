@@ -28,11 +28,9 @@
         <video muted id="skyVideo" src="videos/FreemediabankSky.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
         <video muted id="grassVideo" src="videos/GrassVid2.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
         <video muted id="treeVideo" src="videos/OakVid.mp4" autoplay=true loop=true style="display:none"></video>
-
-                
+        <video muted id="ravenVideo" src="videos/RavenVid.mp4" autoplay=true loop=true style="display:none"></video>
         
-		<script src="js/three.js"></script>
-        <script src="js/holoplay.js"></script>
+		<script src="js/three.min.js"></script>
         <script src="js/PerlinNoiseSimplex.js"></script>
         <script
             src="https://code.jquery.com/jquery-3.2.1.min.js"
@@ -40,30 +38,30 @@
             crossorigin="anonymous">
         </script>
 
-		<script src="js/CSS3DRenderer.js"></script>
         <script src="js/PointerLockControls.js"></script>
         <script src="js/TextToSpeech.js"></script>
         <script src="js/TerrainGenerator.js"></script>
-        <script src="js/GlobeScene.js"></script>
-        <script src="js/VideoScene.js"></script>
+        <script src="js/SceneObjectsManager.js"></script>
+        <script src="js/boid.js"></script>
+        <script src="js/flock.js"></script>
+        <script src="js/AnimalManager.js"></script>
 
 		
 		<script>
             (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);})()
 
             var clock = new THREE.Clock();
+            var globalSpeed = 1;
 
             var camera, scene, renderer, controls;
+            var videoArray = [];
+            var timer = 0;
             
-            
-            
-//            camera = vidCamera;
-//            scene = vidScene;
-//            renderer = vidRenderer;
-//            controls = vidControls;
-            
-            
-//            controls = vidControls;
+            function changeSpeed(newSpeed){
+                globalSpeed = newSpeed;
+                
+                changeVideoSpeed(globalSpeed);
+            }
 
 			function onWindowResize() {
                 
@@ -73,20 +71,45 @@
 
 			}
             
+            var allClickableObjects = [];
+            
+            var audioEndpoint = 1000;
+            
+            function audioCurve(){
+                var x = timer/audioEndpoint;
+            }
+        
             function update(){
-                var delta = clock.getDelta();
-                            
-                if(controls)
-                    controls.vidUpdate(delta);
+                deltaTime = clock.getDelta();
+                timer += deltaTime * globalSpeed;
+                if(flock){
+                    handleSine();
+                    flock.run();
+                }
+                else if(timer > flockTime){
+                    makeFlock();
+                }
+                
+                if(controls){
+                    controls.update(deltaTime);
+//                    controls.setYHeight(controls.getYHeight() + 1);
+                }
             }
             
-//            window.onload() = function(){
-//                window.speechSynthesis.cancel();
-//            }
+            document.addEventListener('keydown', function(event){ 
+                if(event.keyCode === 220){ 
+                    controls.setCanMove(true);
+                } 
+            });
+            
+            function handleSine(){
+                sepHolder += sepSineInc * deltaTime * globalSpeed;
+                
+                sepSine = Math.max(Math.sin(sepHolder), 0);
+            }
             
             function draw(){
-//                renderer.render(scene, camera);
-                holoPlay.render(scene, camera, renderer);
+                renderer.render(scene, camera);
             }
 
 			function RunApp() {
@@ -97,17 +120,38 @@
 
 			}
             
+            function init() {
+                var container = document.getElementById( 'container' );
+                camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
+                scene = new THREE.Scene();
+                scene.add(camera);
+                renderer = new THREE.WebGLRenderer();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                controls = new THREE.PointerLockControls( camera, scene );
+
+                var retGeo = new THREE.CircleGeometry(0.005, 8);
+                var retMat = new THREE.MeshBasicMaterial({color:0xdddddd, side: THREE.DoubleSide});
+                var reticle = new THREE.Mesh(retGeo, retMat);
+                reticle.position.set(0, 0, -1);
+                scene.add(reticle);
+                camera.add(reticle);
+
+                createSceneObjects();
+            
+
+                document.body.appendChild(renderer.domElement);
+
+                
+                //                for(var i = 0; i < urls.length; i++){
+            //                    launchImageWindow(urls[i]);
+            //                }
+            }
+
+            window.addEventListener('keydown', function(event){if(event.keycode===81) closeAllWindows();});
+            
             window.addEventListener( 'resize', onWindowResize, false );
             
-            vidInit();
-
-            camera = vidCamera;
-            scene = vidScene;
-            renderer = vidRenderer;
-            controls = vidControls;
-            console.log(vidScene);
-//            controls = new THREE.PointerLockControls( globeCamera, globeScene, true );
-            var holoPlay = new HoloPlay(vidScene, vidCamera, vidRenderer, 32, 40);
+            init();
 
 			RunApp();
 

@@ -1,10 +1,15 @@
 var generateTerrain = function(object, scene){
-    var loader = new THREE.JSONLoader();
-        
+    let loader = new THREE.JSONLoader();
+    
+    let grassVideo = document.getElementById('grassVideo');
+    videoArray.push(grassVideo);
+    let grassTex = new THREE.VideoTexture(grassVideo, THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping, THREE.NearestFilter, THREE.NearestFilter);
+    grassTex.repeat.set( 1, 1 );
+    
     loader.load('models/Circle.json', 
         function(geometry){
         
-            for(var i = 0; i < geometry.vertices.length; i++){
+            for(let i = 0; i < geometry.vertices.length; i++){
                 geometry.vertices[i].x *= 15;
                 geometry.vertices[i].z *= 15;
                 geometry.vertices[i].y = globalNoise.noise(geometry.vertices[i].x, geometry.vertices[i].z);
@@ -20,7 +25,7 @@ var generateTerrain = function(object, scene){
             geometry.computeBoundingBox ();
             geometry.computeBoundingSphere ();
         
-            var material = new THREE.MeshBasicMaterial({map: grassTex, side: THREE.BackSide});
+            let material = new THREE.MeshBasicMaterial({map: grassTex, side: THREE.BackSide});
         
             material.needsUpdate = true;
             object = new THREE.Mesh( geometry, material );

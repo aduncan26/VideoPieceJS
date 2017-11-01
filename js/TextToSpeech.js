@@ -1,9 +1,11 @@
 var scope = this;
             
-var queryTerm = 'Oak';
+var queryTerm = 'Nature';
 var getUrl = 'https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&indexpageids=&titles=' + queryTerm;
             
 var msg;
+var vol = 0.005;
+var volIncrement = 0.005;
 
 var jsonText;
 $.ajax({
@@ -33,37 +35,25 @@ var onAjaxComplete = function(response){
     var jsonParsed = jsonArray[2].pageids[0];
     
     jsonText = jsonArray[2].pages[jsonParsed].extract;
-    
-    var glitchText = "";
-    
-    var wordIndex;
         
-    for(wordIndex = 0; wordIndex < 4; wordIndex++){
-        if(jsonText[wordIndex] !== ' '){
-            glitchText += jsonText[wordIndex];
-        } else{
-            break;
-        }
-    }
-    
-    var glitch = "";
-    
-    var length = 2 + Math.floor(Math.random() * 6);
-    
-    for(var i = 0; i < length; i++){
-        glitch += glitchText;
-    }
-    
-    console.log(glitch);
-        
-    msg = new SpeechSynthesisUtterance(glitch + jsonText);
+    msg = new SpeechSynthesisUtterance(jsonText);
     //msg.pitch = 1.8; // 0 to 2
-    //msg.volume = 1; // 0 to 1
     //msg.rate = 1; // 0.1 to 10
+    msg.volume = vol;
+    msg.onend = nextUtterance;
 
-    msg.volume = 1;
-//    window.speechSynthesis.speak(msg);
+    window.speechSynthesis.speak(msg);
 };
+
+function nextUtterance(event){
+    msg = new SpeechSynthesisUtterance(jsonText);
+    if(vol < 1){
+        vol += volIncrement;
+    }
+    msg.volume = vol;
+    msg.onend = nextUtterance;
+    window.speechSynthesis.speak(msg);
+}
 
 //var voices = window.speechSynthesis.getVoices();
 //msg.voice = voices[10]; // Note: some voices don't support altering params

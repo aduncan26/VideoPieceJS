@@ -2,10 +2,18 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-
+var tween = false;
 THREE.PointerLockControls = function ( camera, scene, globeControls ) {
 
 	var scope = this;
+    
+    this.enabled = false;
+    this.canMove = true;
+    this.yHeight = 10;
+    this.raycaster = new THREE.Raycaster(camera.position, camera.getWorldDirection(), camera.near, camera.far); 
+
+    this.tweenObject;
+    this.baseFOV = camera.fov;
 
 	camera.rotation.set( 0, 0, 0 );
     
@@ -56,6 +64,8 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
     var worldUp = new THREE.Vector3(0,1,0);
     var speedVector = new THREE.Vector3();
     var speed = 50;
+    
+    var startDistFromObj;
 
 	var onMouseMove = function ( event ) {
         
@@ -69,17 +79,108 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
         
 		pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
 
+        rayCast();
 	};
-
+    
+    var hoveredObject = null;
+    var raycenter = new THREE.Vector2(0, 0), INTERSECTED;
+    var hoveredMat = new THREE.MeshBasicMaterial({color:0xff0000, side: THREE.DoubleSide});
+    var storeMat;
+    
+    var rayCast = function(){
+        if(scope.enabled){
+            let dir = new THREE.Vector3();//camera.position.add(camera.getWorldDirection()).normalize();
+            camera.getWorldDirection(dir);
+            scope.raycaster.set(camera.getWorldPosition(), dir);
+            
+            let params = scope.raycaster.intersectObjects(allClickableObjects);
+                        
+            if(params[0] !== undefined){
+                if(hoveredObject === null){
+                    hoveredObject = params[0].object;
+                    storeMat = hoveredObject.material;
+                    hoveredObject.material = hoveredMat;
+                }
+                else if(hoveredObject !== params[0].object){
+                    hoveredObject.material = storeMat;
+                    hoveredObject = params[0].object;
+                    storeMat = hoveredObject.material;
+                    hoveredObject.material = hoveredMat;
+                }
+            } else{
+                if(hoveredObject != null){
+                    hoveredObject.material = storeMat;
+                    storeMat = null;
+                    hoveredObject = null;
+                }
+            }
+            
+            camera.position.set(0,0,0);
+            camera.rotation.set(0,0,0);
+        }
+    }
+    
+    function lockCamera(){
+        if(hoveredObject !== null){
+            let tempPos = yawObject.getWorldPosition();
+            tempPos.sub(hoveredObject.position);
+            startDistFromObj = tempPos.length();
+            let pos = yawObject.getWorldPosition();
+//            let rot = yawObject.getWorldRotation();
+            yawObject.position.set(pos.x, pos.y, pos.z);
+//            yawObject.rotation.set(rot.x, rot.y, rot.z);
+            yawObject.parent = null;
+            tweenObject = hoveredObject;
+            scope.setCanMove(false);
+            changeSpeed(0);
+            tween = true;
+        }
+    }
+    
+    function tweenToObject(objFrom){
+        console.log(camera);
+        let vecMag = new THREE.Vector3();
+        vecMag.subVectors(tweenObject.position, objFrom.position);
+        let magnitude = vecMag.length();
+        if(magnitude > 0.1 ){
+            //This is terrible, figure out the math properly bro
+            let magDiff = magnitude/startDistFromObj;
+            
+            if(magDiff > 0.5){
+                camera.fov = scope.baseFOV + 20 * Math.min((startDistFromObj/magnitude - 1), 1);
+            } else{
+                camera.fov = scope.baseFOV + 20 * (magnitude/startDistFromObj);
+            }
+            camera.updateProjectionMatrix();
+            objFrom.position.lerp(tweenObject.position, 10 * deltaTime);
+//            objFrom.rotation.lerp(zeroVec, 1 * deltaTime);
+        } else{
+//            objFrom.rotation = zeroVec;
+            tween = false;
+            changeSpeed(1);
+            let rot = objFrom.rotation;
+            tweenObject.add(yawObject);
+//            objFrom.rotation.add(rot);
+            objFrom.position.set(0,0,0);
+            tweenObject = null;
+            camera.fov = scope.baseFOV;
+            camera.updateProjectionMatrix();
+        }
+    }
+    
+    this.getYawObject = function(){
+        return yawObject;
+    }
+    
 	this.dispose = function() {
 
 		document.removeEventListener( 'mousemove', onMouseMove, false );
 
 	};
+    
+    document.addEventListener('mousedown', lockCamera, false);
 
 	document.addEventListener( 'mousemove', onMouseMove, false );
-
-	this.enabled = false;
 
     function keyDown(event){
         switch(event.keyCode){
@@ -118,7 +219,15 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
     document.addEventListener('keydown', function(event){keyDown(event)}, false);
     document.addEventListener('keyup', function(event){keyUp(event)}, false);
 
-    this.vidUpdate = function(deltaTime){
+    this.update = function(deltaTime){
+        if(tween){
+            tweenToObject(yawObject);
+            return;
+        }
+        
+        if(!scope.canMove)
+            return;
+        
         camera.getWorldDirection(vector);
                 
         var crossProd = new THREE.Vector3();
@@ -136,7 +245,6 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
         
         vector.multiply(speedVector);
         crossProd.multiply(speedVector);
-
         if(moveForward){
             yawObject.position.addVectors(yawObject.position, vector);
         }
@@ -150,22 +258,22 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
             yawObject.position.addVectors(yawObject.position, crossProd);
         }
         
-        yawObject.position.y = globalNoise.noise(yawObject.position.x, yawObject.position.z) + 10;
+        yawObject.position.y = globalNoise.noise(yawObject.position.x, yawObject.position.z) + scope.yHeight;
     }
     
-    this.globeUpdate = function(deltaTime){
-        if(moveForward){
-            centerObj.rotation.x += 0.1 * deltaTime;
+    this.setCanMove = function(bool){
+        scope.canMove = bool;
+        if(bool === true){
+            yawObject.parent = null;
         }
-        if(moveBackward){
-//            yawObject.position.addVectors(yawObject.position, vector.negate());
-        }
-        if(moveLeft){
-//            yawObject.position.addVectors(yawObject.position, crossProd.negate());
-        }
-        if(moveRight){
-//            yawObject.position.addVectors(yawObject.position, crossProd);
-        }
+    }
+    
+    this.getYHeight = function(){
+        return scope.yHeight;
+    }
+    
+    this.setYHeight = function(val){
+        scope.yHeight = val;
     }
     
 	this.getObject = function () {
