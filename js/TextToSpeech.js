@@ -4,7 +4,7 @@ var queryTerm = 'Nature';
 var getUrl = 'https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&indexpageids=&titles=' + queryTerm;
             
 var msg;
-var vol = 0.005;
+var vol = 0.01;
 var volIncrement = 0.005;
 
 var jsonText;
@@ -35,10 +35,12 @@ var onAjaxComplete = function(response){
     var jsonParsed = jsonArray[2].pageids[0];
     
     jsonText = jsonArray[2].pages[jsonParsed].extract;
-        
+    
+//    jsonText = "Hello";
+    
     msg = new SpeechSynthesisUtterance(jsonText);
     //msg.pitch = 1.8; // 0 to 2
-    //msg.rate = 1; // 0.1 to 10
+    msg.rate = 1.5; // 0.1 to 10
     msg.volume = vol;
     msg.onend = nextUtterance;
 
@@ -46,11 +48,14 @@ var onAjaxComplete = function(response){
 };
 
 function nextUtterance(event){
+    console.log("Next utterance called");
+    
     msg = new SpeechSynthesisUtterance(jsonText);
     if(vol < 1){
         vol += volIncrement;
     }
-    msg.volume = vol;
+    msg.rate = 1.5;
+    msg.volume = gameStateVar + 0.1;
     msg.onend = nextUtterance;
     window.speechSynthesis.speak(msg);
 }

@@ -115,7 +115,7 @@ function createSceneObjects(){
     var terrain;
     generateTerrain(terrain, scene);
 
-    createTrees();
+//    createTrees();
     
 }
 

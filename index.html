@@ -44,6 +44,7 @@
         <script src="js/SceneObjectsManager.js"></script>
         <script src="js/boid.js"></script>
         <script src="js/flock.js"></script>
+        <script src="js/mouse.js"></script>
         <script src="js/AnimalManager.js"></script>
 
 		
@@ -56,6 +57,8 @@
             var camera, scene, renderer, controls;
             var videoArray = [];
             var timer = 0;
+            var gameStateVar = 0;
+            var crescendoDuration = 600;
             
             function changeSpeed(newSpeed){
                 globalSpeed = newSpeed;
@@ -83,7 +86,7 @@
                 deltaTime = clock.getDelta();
                 timer += deltaTime * globalSpeed;
                 if(flock){
-                    handleSine();
+//                    handleSine();
                     flock.run();
                 }
                 else if(timer > flockTime){
@@ -94,6 +97,16 @@
                     controls.update(deltaTime);
 //                    controls.setYHeight(controls.getYHeight() + 1);
                 }
+                
+                runMouse();
+                
+                handleProgress(timer/crescendoDuration);
+            }
+            
+            function handleProgress(timeFraction){
+                let fraction = Math.min(timeFraction, 1);
+                gameStateVar = Math.pow(fraction, 2) * ((1.5 + 1) * fraction - 1.5);
+                gameStateVar = Math.max(gameStateVar, 0);
             }
             
             document.addEventListener('keydown', function(event){ 

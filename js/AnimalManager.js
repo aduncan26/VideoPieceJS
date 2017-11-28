@@ -7,6 +7,8 @@ var sepSineInc = 0.3;
 
 var flockTime = 1;
 
+var mouse;
+
 function makeFlock() {  
     let vid = document.getElementById("ravenVideo");
     videoArray.push(vid);
@@ -20,7 +22,18 @@ function makeFlock() {
     for (var i = 0; i < 70; i++) {
         var b = new Boid(scene, 2500, 250, (Math.random() - 0.5) * 100, _geo, _mat);
         flock.addBoid(b);
-        allClickableObjects.push(b.getObj());
-        scene.add(b.getObj());
+        allClickableObjects.push(b.getChildObj());
     }
+
+    //Need to branch out
+    mouse = new Mouse(scene, 0, 0, 0, _geo, _mat, 10);
+
+}
+
+
+function runMouse(){
+    if(mouse === undefined){
+        return;
+    }    
+    mouse.run();
 }

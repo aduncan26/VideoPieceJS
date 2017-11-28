@@ -1,7 +1,8 @@
 var Boid = function(scene, x, y, z, geo, mat) {
   var obj;
-  var velocity;
-    
+  var childObj;
+  var velocity;    
+
   var acceleration;
   var r;
   
@@ -9,22 +10,22 @@ var Boid = function(scene, x, y, z, geo, mat) {
   //Speeds
   var rMaxS = 170;
   var rMinS = 130;
-  var rMaxF = 1;
+  var rMaxF = 0.8;
   var rMinF = 0.5;
 
   //Multipliers
   var sepMult = 1.5;
-  var aliMult = 1.5;
-  var cohMult = 0.8;
-  var randMult = 0.3;
+  var aliMult = 1.3;
+  var cohMult = 1;
   var boundsMult = 10;
+  var noiseMult = 0.2;
 
   //Detection ranges
   var sepRange = 50;
   var aliRange = 200;
   var cohRange = 200;
     
-  var minY = 100;
+  var minY = 160;
   var sineCutoff = 0.5;
   
   var maxspeed = rMinS;    // Maximum speed
@@ -34,9 +35,9 @@ var Boid = function(scene, x, y, z, geo, mat) {
 
   var initialized = false;
     
-  var worldX = 1200;
+  var worldX = 1100;
   var worldY = 900;
-  var worldZ = 1200;
+  var worldZ = 1100;
     
   var worldForward = new THREE.Vector3(0,0,1);
   
@@ -46,10 +47,17 @@ var Boid = function(scene, x, y, z, geo, mat) {
     velocity.multiplyScalar(maxspeed);
     let pos = new THREE.Vector3(x, y, z);
     r = 5.0;
-      
-    obj = new THREE.Mesh(geo, mat);
+    
+    childObj = new THREE.Mesh(geo, mat);
+    scene.add(childObj);
+
+    obj = new THREE.Object3D();
     obj.position.set(pos.x, pos.y, pos.z);
-      
+    scene.add(obj);
+
+    obj.add(childObj);
+    childObj.position.set(0,0,0);
+    
     initialized = true;
   }
 
@@ -58,13 +66,17 @@ var Boid = function(scene, x, y, z, geo, mat) {
         return;
       
     update();
-//    borders();
     render();
   }
     
   this.getObj = function(){
       return obj;
   }
+  
+  this.getChildObj = function(){
+      return childObj;
+  }
+  
   this.getVelocity = function(){
       return velocity;
   }
@@ -76,38 +88,29 @@ var Boid = function(scene, x, y, z, geo, mat) {
 
   // We accumulate a new acceleration each time based on three rules
   this.flock = function(boids) {
-    let sep = separate(boids);   // Separation
-    let ali = align(boids);      // Alignment
-    let coh = cohesion(boids);   // Cohesion
-    let bounds = turnToCenter();
-    let rand = randomForce();
-      
-    // Not for every boid yet
-    // PVector view = view(boids);      // view
-
-    // Arbitrarily weight these forces
-    let sMult = sepMult + Math.max(sineCutoff, sepSine) * 2 - (sineCutoff * 2);  
-    let aMult = aliMult - Math.max(sineCutoff, sepSine) * 1 + (sineCutoff * 1);
+    let coh = cohesion(boids);   
     let cMult = cohMult - Math.max(sineCutoff, sepSine) * 1 + (sineCutoff * 1);
-      
-    sep.multiplyScalar(sMult);
-    ali.multiplyScalar(aMult);
     coh.multiplyScalar(cMult);
-    bounds.multiplyScalar(boundsMult);
-    rand.multiplyScalar(randMult);
-
-    // Not for every boid yet
-    // view.mult(1.0);
-
-    // Add the force vectors to acceleration
-    applyForce(sep);
-    applyForce(ali);
     applyForce(coh);
-    applyForce(bounds);
-    applyForce(rand);
 
-    // Not for every boid yet
-    // applyForce(view);
+    let ali = align(boids);      // Alignment
+    let aMult = aliMult - Math.max(sineCutoff, sepSine) * 1 + (sineCutoff * 1);
+    ali.multiplyScalar(aMult);
+    applyForce(ali);
+
+    let sep = separate(boids);   // Separation
+    let sMult = sepMult + Math.max(sineCutoff, sepSine) * 2 - (sineCutoff * 2);  
+    sep.multiplyScalar(sMult);
+    applyForce(sep);
+
+    let noiseForce = moveWithNoise();
+    noiseForce.multiplyScalar(noiseMult);
+    applyForce(noiseForce);
+
+    let bounds = turnToCenter();
+    bounds.multiplyScalar(boundsMult);
+    applyForce(bounds);
+      
   }
   
   // Method to update position
@@ -121,18 +124,6 @@ var Boid = function(scene, x, y, z, geo, mat) {
     obj.position.add(velocity);
     // Reset accelertion to 0 each cycle
     acceleration.multiplyScalar(0);
-  }
-    
-  function randomForce(){
-      let randDir = new THREE.Vector3( (Math.random() - 0.5) * 5 - obj.position.x,
-                                     (Math.random() - 0.5) * 5 - obj.position.y,
-                                     (Math.random() - 0.5) * 5 - obj.position.z);
-      randDir.normalize();
-      randDir.multiplyScalar(maxspeed);
-      randDir.sub(velocity);
-      randDir.clampLength(0, maxforce);
-      return randDir;
-      
   }
   
   function outOfBounds(){
@@ -162,30 +153,15 @@ var Boid = function(scene, x, y, z, geo, mat) {
       }
   }
 
-  // A method that calculates and applies a steering force towards a target
-  // STEER = DESIRED MINUS VELOCITY
-  function seek(target) {
-    let desired = new THREE.Vector3(target.x - obj.position.x, target.y - obj.position.y, target.z - obj.position.z); // A vector pointing from the position to the target
-    // Normalize desired and scale to maximum speed
-    desired.normalize();
-    desired.multiplyScalar(maxspeed);
-    // Steering = Desired minus Velocity
-    var steer = new THREE.Vector3(desired.x - velocity.x, desired.y - velocity.y, desired.z - velocity.z);
-    steer.clampLength(0, maxforce);  // Limit to maximum steering force
-    return steer;
-  }
+
     
   function render() {
     // Draw a triangle rotated in the direction of velocity
     obj.position.add(velocity);
       
     if(!tween){
-        var facing = new THREE.Vector3(obj.position.x + velocity.x, obj.position.y + velocity.y, obj.position.z + velocity.z);
-
-        obj.lookAt(facing);
+        childObj.lookAt(velocity);
     }
-    //Do this only if it is a plane
-//    obj.rotation.y += Math.PI/2;
   }
 
   // Separation
@@ -222,7 +198,25 @@ var Boid = function(scene, x, y, z, geo, mat) {
       steer.sub(velocity);
       steer.clampLength(0, maxforce);
     }
+      
     return steer;
+  }
+    
+  var randXVal = Math.random() * 5000;
+  var randYVal = Math.random() * 5000;
+  var randZVal = Math.random() * 5000;
+  var randTMult = 100;
+  function moveWithNoise(){    
+      let noiseX = globalNoise.noise(randXVal + timer * randTMult, randYVal + timer * randTMult) / 100;
+      let noiseY = globalNoise.noise(randYVal + timer * randTMult, randXVal + timer * randTMult) / 100;
+      let noiseZ = globalNoise.noise(randZVal + timer * randTMult, randXVal + timer * randTMult) / 100;
+                  
+      let dir = new THREE.Vector3(noiseX, noiseY, noiseZ);
+      
+      dir.normalize();
+      dir.multiplyScalar(0.05);
+            
+      return dir;
   }
 
   // Alignment
@@ -273,5 +267,18 @@ var Boid = function(scene, x, y, z, geo, mat) {
     }
   }
     
-    init();
+  // A method that calculates and applies a steering force towards a target
+  // STEER = DESIRED MINUS VELOCITY
+  function seek(target) {
+    let desired = new THREE.Vector3(target.x - obj.position.x, target.y - obj.position.y, target.z - obj.position.z); // A vector pointing from the position to the target
+    // Normalize desired and scale to maximum speed
+    desired.normalize();
+    desired.multiplyScalar(maxspeed);
+    // Steering = Desired minus Velocity
+    var steer = new THREE.Vector3(desired.x - velocity.x, desired.y - velocity.y, desired.z - velocity.z);
+    steer.clampLength(0, maxforce);  // Limit to maximum steering force
+    return steer;
+  }
+    
+  init();
 }

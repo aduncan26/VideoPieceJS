@@ -40,9 +40,17 @@ SimplexNoise.prototype.dot = function(g, x, y) {
 	return g[0]*x + g[1]*y;
 };
 
-SimplexNoise.prototype.noise = function(xin, yin) { 
+SimplexNoise.prototype.noise = function(xin, yin, scale) { 
   var scaleDivider = 2000;
   var noiseScale = 100;
+
+  if(scale === undefined){
+      scale = true;
+  }
+
+  if(scale === false){
+      noiseScale = 1;
+  }
     
   xin = xin/scaleDivider;
   yin = yin/scaleDivider;

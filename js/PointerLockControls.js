@@ -126,41 +126,38 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
             tempPos.sub(hoveredObject.position);
             startDistFromObj = tempPos.length();
             let pos = yawObject.getWorldPosition();
-//            let rot = yawObject.getWorldRotation();
             yawObject.position.set(pos.x, pos.y, pos.z);
-//            yawObject.rotation.set(rot.x, rot.y, rot.z);
             yawObject.parent = null;
-            tweenObject = hoveredObject;
+            if(hoveredObject.parent !== scene){
+                tweenObject = hoveredObject.parent;
+            } else{
+                tweenObject = hoveredObject;
+            }
             scope.setCanMove(false);
             changeSpeed(0);
             tween = true;
         }
     }
     
+    //f(x) = (sin(2 * π * (x - 1/4)) + 1) / 2
     function tweenToObject(objFrom){
-        console.log(camera);
         let vecMag = new THREE.Vector3();
         vecMag.subVectors(tweenObject.position, objFrom.position);
         let magnitude = vecMag.length();
         if(magnitude > 0.1 ){
-            //This is terrible, figure out the math properly bro
-            let magDiff = magnitude/startDistFromObj;
+            let magDiff = 1 - magnitude/startDistFromObj;
             
-            if(magDiff > 0.5){
-                camera.fov = scope.baseFOV + 20 * Math.min((startDistFromObj/magnitude - 1), 1);
-            } else{
-                camera.fov = scope.baseFOV + 20 * (magnitude/startDistFromObj);
-            }
+            let newFOV = (Math.sin(2 * Math.PI * (magDiff - 1/4)) + 1)/4;
+            
+            camera.fov = scope.baseFOV + 20 * newFOV;
+            
             camera.updateProjectionMatrix();
-            objFrom.position.lerp(tweenObject.position, 10 * deltaTime);
-//            objFrom.rotation.lerp(zeroVec, 1 * deltaTime);
+            objFrom.position.lerp(tweenObject.position, 5 * deltaTime);
         } else{
-//            objFrom.rotation = zeroVec;
             tween = false;
             changeSpeed(1);
             let rot = objFrom.rotation;
             tweenObject.add(yawObject);
-//            objFrom.rotation.add(rot);
             objFrom.position.set(0,0,0);
             tweenObject = null;
             camera.fov = scope.baseFOV;
