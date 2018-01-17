@@ -9,7 +9,7 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
     
     this.enabled = false;
     this.canMove = true;
-    this.yHeight = 10;
+    this.yHeight = 20;
     this.raycaster = new THREE.Raycaster(camera.position, camera.getWorldDirection(), camera.near, camera.far); 
 
     this.tweenObject;
@@ -43,6 +43,7 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
 	yawObject.position.y = 10;
 	yawObject.add( pitchObject );
     scene.add(yawObject);
+    playerObj = yawObject;
     
     var centerObj;
     if(globeControls){
@@ -66,6 +67,16 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
     var speed = 50;
     
     var startDistFromObj;
+    
+    this.castRays = false;
+    
+    this.getRaycast = function(){
+        return scope.castRays;
+    }
+    
+    this.setRaycast = function(value){
+        scope.castRays = value;
+    }
 
 	var onMouseMove = function ( event ) {
         
@@ -79,7 +90,9 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
         
 		pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
 
-        rayCast();
+        if(scope.castRays){
+            rayCast();
+        }
 	};
     
     var hoveredObject = null;
@@ -254,6 +267,8 @@ THREE.PointerLockControls = function ( camera, scene, globeControls ) {
         if(moveRight){
             yawObject.position.addVectors(yawObject.position, crossProd);
         }
+        
+//        console.log("x: " + yawObject.position.x + " z: " + yawObject.position.z);
         
         yawObject.position.y = globalNoise.noise(yawObject.position.x, yawObject.position.z) + scope.yHeight;
     }

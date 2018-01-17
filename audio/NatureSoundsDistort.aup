@@ -1,0 +1,69 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE project PUBLIC "-//audacityproject-1.3.0//DTD//EN" "http://audacity.sourceforge.net/xml/audacityproject-1.3.0.dtd" >
+<project xmlns="http://audacity.sourceforge.net/xml/" projname="NatureSoundsDistort_data" version="1.3.0" audacityversion="2.1.2" sel0="13.4067573696" sel1="13.4067573696" vpos="144" h="0.0000000000" zoom="28.4132318677" rate="44100.0" snapto="off" selectionformat="hh:mm:ss + milliseconds" frequencyformat="Hz" bandwidthformat="octaves">
+	<tags/>
+	<wavetrack name="400331__inspectorj__cicada-close-a" channel="0" linked="1" mute="0" solo="0" height="150" minimized="0" isSelected="0" rate="44100" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="591238">
+				<waveblock start="0">
+					<simpleblockfile filename="e000046d.au" len="262144" min="-0.149171" max="0.145036" rms="0.029058"/>
+				</waveblock>
+				<waveblock start="262144">
+					<simpleblockfile filename="e00003b4.au" len="262144" min="-0.166495" max="0.211497" rms="0.032849"/>
+				</waveblock>
+				<waveblock start="524288">
+					<simpleblockfile filename="e0000bb8.au" len="66950" min="-0.076431" max="0.079155" rms="0.012545"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="400331__inspectorj__cicada-close-a" channel="1" linked="0" mute="0" solo="0" height="150" minimized="0" isSelected="0" rate="44100" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="591238">
+				<waveblock start="0">
+					<simpleblockfile filename="e0000063.au" len="262144" min="-0.146396" max="0.148285" rms="0.027478"/>
+				</waveblock>
+				<waveblock start="262144">
+					<simpleblockfile filename="e0000e9b.au" len="262144" min="-0.180103" max="0.157959" rms="0.032432"/>
+				</waveblock>
+				<waveblock start="524288">
+					<simpleblockfile filename="e0000b8f.au" len="66950" min="-0.071799" max="0.077155" rms="0.011548"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable" channel="0" linked="1" mute="0" solo="0" height="150" minimized="0" isSelected="1" rate="48000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="643524">
+				<waveblock start="0">
+					<simpleblockfile filename="e00008fd.au" len="262144" min="-0.102158" max="0.111852" rms="0.012877"/>
+				</waveblock>
+				<waveblock start="262144">
+					<simpleblockfile filename="e0000667.au" len="190690" min="-0.084704" max="0.088683" rms="0.013637"/>
+				</waveblock>
+				<waveblock start="452834">
+					<simpleblockfile filename="e00005bb.au" len="190690" min="-0.109594" max="0.11163" rms="0.013668"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable" channel="1" linked="0" mute="0" solo="0" height="150" minimized="0" isSelected="1" rate="48000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="643524">
+				<waveblock start="0">
+					<simpleblockfile filename="e00005aa.au" len="262144" min="-0.085117" max="0.075747" rms="0.012063"/>
+				</waveblock>
+				<waveblock start="262144">
+					<simpleblockfile filename="e000046e.au" len="190690" min="-0.07789" max="0.082721" rms="0.0121"/>
+				</waveblock>
+				<waveblock start="452834">
+					<simpleblockfile filename="e0000afa.au" len="190690" min="-0.167082" max="0.163689" rms="0.012886"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+</project>

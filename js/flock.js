@@ -2,6 +2,9 @@ var Flock = function() {
     var boids = []; // An ArrayList for all the boids
     var color = new THREE.Color("rgb(255, 0, 0)");
     
+    this.getBoid = function (index){
+        return boids[index].getPosition();
+    }
     
     this.run = function() {
         for (var i = 0; i < boids.length; i++) {

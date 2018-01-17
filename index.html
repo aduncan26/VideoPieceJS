@@ -11,24 +11,146 @@
 				overflow: hidden;
 			}
 			#blocker {
+
 				position: absolute;
-				/* background-color: rgba(255, 0, 0, 0.5); */
-				top: 0px;
-				left: 0px;
+
 				width: 100%;
 				height: 100%;
+
+				background-color: rgba(0,0,0,1);
+
 			}
+            #title {
+                position: relative;
+                
+				width: 100%;
+				height: 100%;
+
+				display: -webkit-box;
+				display: -moz-box;
+				display: box;
+
+				-webkit-box-orient: horizontal;
+				-moz-box-orient: horizontal;
+				box-orient: horizontal;
+
+				-webkit-box-pack: center;
+				-moz-box-pack: center;
+				box-pack: center;
+
+				-webkit-box-align: center;
+				-moz-box-align: center;
+				box-align: center;
+
+				text-align: center;
+			}
+            
 		</style>
 	</head>
 	<body>
         <div id="container"></div>
-        <div id="blocker"></div>
+        
+        <audio id="crowAudio" src="audio/CrowRaw.wav" loop=true></audio>
+        <audio id="treeAudio" src="audio/TreeRawLong.wav" loop=true></audio>
+        <audio id="dCrowAudio" src="audio/CrowDistort.wav" loop=true></audio>
+        <audio id="dTreeAudio" src="audio/TreeDistortLong.wav" loop=true></audio>
+        
+       
+        
+        <div id="blocker">   
+			<div id="title">
+                <img id="O" src="images/O.gif" style="width: 100px;">
+                <img id="N1" src="images/N.gif" style="width: 100px;">
+                <img id="N2" src="images/N1.gif" style="padding-left: 50px; width: 100px;">
+                <img id="A" src="images/A.gif" style="width: 100px;">
+                <img id="T" src="images/T.gif" style="width: 100px;">
+                <img id="U" src="images/U.gif" style="width: 100px;">
+                <img id="R" src="images/R.gif" style="width: 100px;">
+                <img id="E" src="images/E.gif" style="width: 100px;">
+			</div>
+
+		</div>
+        
+        <script>
+            var startNextPhase = false;
+            var treeAudio = document.getElementById("treeAudio");
+            var dTreeAudio = document.getElementById("dTreeAudio");
+
+            var crowAudio = document.getElementById("crowAudio");
+            var dCrowAudio = document.getElementById("dCrowAudio");
+                        
+            let loopAnimReq;
+            
+            let introTimer = 0;
+            let introTime = 20;
+            
+            let lastNow;
+            
+//            let instructionsText = document.getElementById("titleBlock");
+            
+            function start(){
+                lastNow = Date.now();
+                
+                treeAudio.volume = 0;
+                crowAudio.volume = 0;
+                dTreeAudio.volume = 0;
+                dCrowAudio.volume = 0;
+
+                treeAudio.play();
+                crowAudio.play();
+                dTreeAudio.play();
+                dCrowAudio.play();
+            }
+            
+            function introLoop(){
+                let now = Date.now();
+                let dt = now - lastNow;
+                lastNow = now;
+                
+                introTimer += dt;
+                
+                let t = introTimer/(introTime * 1000);
+                
+                if(t < 1){
+//                    let cVal = Math.round(255 * t).toString();
+//                    
+//                    instructionsText.style.color = "rgba(0,0,0," + cVal + ");";
+                                        
+                    loopAnimReq = requestAnimationFrame(introLoop);
+                    
+                    if(t < 0.98){
+                        treeAudio.volume = Math.pow(t, 1.5);
+                        crowAudio.volume = Math.pow(t, 1.5);
+                    } else{
+                        treeAudio.volume = 0;
+                        crowAudio.volume = 0;
+                        dTreeAudio.volume = Math.pow(t, 1.5);
+                        dCrowAudio.volume = Math.pow(t, 1.5);
+                    }
+                } else{
+                    startNextPhase = true;
+                    let block = document.getElementById("blocker");
+                    document.body.removeChild(block);
+                    controls = new THREE.PointerLockControls( camera, scene );
+                    
+                    dTreeAudio.pause();
+                    dCrowAudio.pause();
+                    crowAudio.pause();
+                }
+                
+            }
+            
+            start();
+            introLoop();
+        </script>
         
         <video muted id="marioSkyVideo" src="videos/SkyVid2.mp4" autoplay=true loop=true style="display:none" width="512" height="256"></video>
         <video muted id="skyVideo" src="videos/FreemediabankSky.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
         <video muted id="grassVideo" src="videos/GrassVid2.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
         <video muted id="treeVideo" src="videos/OakVid.mp4" autoplay=true loop=true style="display:none"></video>
         <video muted id="ravenVideo" src="videos/RavenVid.mp4" autoplay=true loop=true style="display:none"></video>
+        <video muted id="foxVideo" src="videos/FoxVid.mp4" autoplay=true loop=true style="display:none"></video>
+        <video muted id="mouseVideo" src="videos/MouseVid.mp4" autoplay=true loop=true style="display:none"></video>
         
 		<script src="js/three.min.js"></script>
         <script src="js/PerlinNoiseSimplex.js"></script>
@@ -45,12 +167,16 @@
         <script src="js/boid.js"></script>
         <script src="js/flock.js"></script>
         <script src="js/mouse.js"></script>
+        <script src="js/fox.js"></script>
         <script src="js/AnimalManager.js"></script>
 
 		
-		<script>
+		<script>            
             (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);})()
 
+            window.onload = function () { console.log("Loaded") };
+
+            
             var clock = new THREE.Clock();
             var globalSpeed = 1;
 
@@ -58,7 +184,11 @@
             var videoArray = [];
             var timer = 0;
             var gameStateVar = 0;
-            var crescendoDuration = 600;
+            var crescendoDuration = 60;
+            
+            var worldEdge = 1400;
+            
+            var playerObj;
             
             function changeSpeed(newSpeed){
                 globalSpeed = newSpeed;
@@ -76,31 +206,56 @@
             
             var allClickableObjects = [];
             
-            var audioEndpoint = 1000;
-            
-            function audioCurve(){
-                var x = timer/audioEndpoint;
-            }
+            var glitchAudio = false;
         
             function update(){
                 deltaTime = clock.getDelta();
                 timer += deltaTime * globalSpeed;
+                
+                let t = timer/crescendoDuration;
+                
                 if(flock){
 //                    handleSine();
                     flock.run();
                 }
-                else if(timer > flockTime){
+                else if(t > 0.5){
                     makeFlock();
                 }
                 
+                if(!glitchAudio && t > 0.9){
+                    glitchAudio = true;
+                    treeAudio.pause();
+                    crowAudio.pause();
+                    dTreeAudio.play();
+                    dCrowAudio.play();
+                }
+
                 if(controls){
                     controls.update(deltaTime);
-//                    controls.setYHeight(controls.getYHeight() + 1);
+//                    if(t > 0.8){
+//                        controls.setYHeight(controls.getYHeight() + 100 * deltaTime);
+//                    }
                 }
                 
                 runMouse();
+                runFox();
+                runEnvironmentAudio(glitchAudio);
+                runAnimalAudio(glitchAudio);
                 
-                handleProgress(timer/crescendoDuration);
+                
+                if(t > 1 && t < 1.1){
+                    for(var i = 0; i < urls.length; i++){
+                        launchImageWindow(urls[i]);
+                    }
+                } else if(t > 1.1){
+                    closeAllWindows();
+                }
+                
+                if(controls.getRaycast() === false && t > 0.1){
+                    controls.setRaycast(true);
+                }
+                
+                handleProgress(t);
             }
             
             function handleProgress(timeFraction){
@@ -126,11 +281,11 @@
             }
 
 			function RunApp() {
-
 				requestAnimationFrame( RunApp );
-				update();
-                draw();
-
+                if(startNextPhase){
+                    update();
+                    draw();
+                }
 			}
             
             function init() {
@@ -140,7 +295,6 @@
                 scene.add(camera);
                 renderer = new THREE.WebGLRenderer();
                 renderer.setSize(window.innerWidth, window.innerHeight);
-                controls = new THREE.PointerLockControls( camera, scene );
 
                 var retGeo = new THREE.CircleGeometry(0.005, 8);
                 var retMat = new THREE.MeshBasicMaterial({color:0xdddddd, side: THREE.DoubleSide});
@@ -150,16 +304,11 @@
                 camera.add(reticle);
 
                 createSceneObjects();
-            
+                createLandCreatures();
 
                 document.body.appendChild(renderer.domElement);
-
-                
-                //                for(var i = 0; i < urls.length; i++){
-            //                    launchImageWindow(urls[i]);
-            //                }
             }
-
+            
             window.addEventListener('keydown', function(event){if(event.keycode===81) closeAllWindows();});
             
             window.addEventListener( 'resize', onWindowResize, false );

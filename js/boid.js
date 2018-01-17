@@ -80,6 +80,10 @@ var Boid = function(scene, x, y, z, geo, mat) {
   this.getVelocity = function(){
       return velocity;
   }
+  
+  this.getPosition = function(){
+      return obj.position;
+  }
 
   function applyForce(force) {
     // We could add mass here if we want A = F / M

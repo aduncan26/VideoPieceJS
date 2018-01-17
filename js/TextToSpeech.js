@@ -43,8 +43,8 @@ var onAjaxComplete = function(response){
     msg.rate = 1.5; // 0.1 to 10
     msg.volume = vol;
     msg.onend = nextUtterance;
-
-    window.speechSynthesis.speak(msg);
+    
+//    window.speechSynthesis.speak(msg);
 };
 
 function nextUtterance(event){
@@ -58,7 +58,20 @@ function nextUtterance(event){
     msg.volume = gameStateVar + 0.1;
     msg.onend = nextUtterance;
     window.speechSynthesis.speak(msg);
-}
+};
+
+//var voices;
+//
+//window.speechSynthesis.onvoiceschanged = function() {
+//    voices = window.speechSynthesis.getVoices();
+//    for(var i = 0; i < voices.length; i++){
+//        console.log(voices[i]);
+//    }
+//
+//    msg.voice = voices[10];
+//    msg.volume = 1;
+//    window.speechSynthesis.speak(msg);
+//};
 
 //var voices = window.speechSynthesis.getVoices();
 //msg.voice = voices[10]; // Note: some voices don't support altering params

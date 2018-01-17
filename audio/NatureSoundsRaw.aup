@@ -1,0 +1,69 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE project PUBLIC "-//audacityproject-1.3.0//DTD//EN" "http://audacity.sourceforge.net/xml/audacityproject-1.3.0.dtd" >
+<project xmlns="http://audacity.sourceforge.net/xml/" projname="NatureSoundsRaw_data" version="1.3.0" audacityversion="2.1.2" sel0="12.7011337868" sel1="12.7011337868" vpos="0" h="0.0000000000" zoom="31.0620525763" rate="48000.0" snapto="off" selectionformat="hh:mm:ss + milliseconds" frequencyformat="Hz" bandwidthformat="octaves">
+	<tags/>
+	<wavetrack name="405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable" channel="0" linked="1" mute="0" solo="0" height="150" minimized="0" isSelected="1" rate="48000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="609654">
+				<waveblock start="0">
+					<pcmaliasblockfile summaryfile="e000066c.auf" aliasfile="/Users/alexduncan/Downloads/405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable.wav" aliasstart="0" aliaslen="262144" aliaschannel="0" min="-0.095102" max="0.108846" rms="0.007808"/>
+				</waveblock>
+				<waveblock start="262144">
+					<simpleblockfile filename="e0000ffd.au" len="173755" min="-0.079199" max="0.083509" rms="0.007684"/>
+				</waveblock>
+				<waveblock start="435899">
+					<simpleblockfile filename="e0000a56.au" len="173755" min="-0.10187" max="0.109834" rms="0.007911"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable" channel="1" linked="0" mute="0" solo="0" height="150" minimized="0" isSelected="1" rate="48000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="609654">
+				<waveblock start="0">
+					<pcmaliasblockfile summaryfile="e000094c.auf" aliasfile="/Users/alexduncan/Downloads/405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable.wav" aliasstart="0" aliaslen="262144" aliaschannel="1" min="-0.072379" max="0.065572" rms="0.007179"/>
+				</waveblock>
+				<waveblock start="262144">
+					<simpleblockfile filename="e000006b.au" len="173755" min="-0.075871" max="0.070498" rms="0.006965"/>
+				</waveblock>
+				<waveblock start="435899">
+					<simpleblockfile filename="e000044f.au" len="173755" min="-0.160683" max="0.15809" rms="0.007379"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="386768__ken788__crows" channel="0" linked="1" mute="0" solo="0" height="150" minimized="0" isSelected="0" rate="44100" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="560120">
+				<waveblock start="0">
+					<pcmaliasblockfile summaryfile="e0000b6b.auf" aliasfile="/Users/alexduncan/Downloads/386768__ken788__crows.wav" aliasstart="0" aliaslen="262144" aliaschannel="0" min="-0.072481" max="0.064543" rms="0.010446"/>
+				</waveblock>
+				<waveblock start="262144">
+					<pcmaliasblockfile summaryfile="e00003af.auf" aliasfile="/Users/alexduncan/Downloads/386768__ken788__crows.wav" aliasstart="262144" aliaslen="262144" aliaschannel="0" min="-0.065599" max="0.07504" rms="0.012684"/>
+				</waveblock>
+				<waveblock start="524288">
+					<simpleblockfile filename="e0000575.au" len="35832" min="-0.032001" max="0.034636" rms="0.005576"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="386768__ken788__crows" channel="1" linked="0" mute="0" solo="0" height="150" minimized="0" isSelected="0" rate="44100" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="560120">
+				<waveblock start="0">
+					<pcmaliasblockfile summaryfile="e00005c0.auf" aliasfile="/Users/alexduncan/Downloads/386768__ken788__crows.wav" aliasstart="0" aliaslen="262144" aliaschannel="1" min="-0.085192" max="0.081296" rms="0.014142"/>
+				</waveblock>
+				<waveblock start="262144">
+					<pcmaliasblockfile summaryfile="e00007e3.auf" aliasfile="/Users/alexduncan/Downloads/386768__ken788__crows.wav" aliasstart="262144" aliaslen="262144" aliaschannel="1" min="-0.09507" max="0.100263" rms="0.015919"/>
+				</waveblock>
+				<waveblock start="524288">
+					<simpleblockfile filename="e000032d.au" len="35832" min="-0.036232" max="0.037794" rms="0.005771"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+</project>

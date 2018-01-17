@@ -1,0 +1,49 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE project PUBLIC "-//audacityproject-1.3.0//DTD//EN" "http://audacity.sourceforge.net/xml/audacityproject-1.3.0.dtd" >
+<project xmlns="http://audacity.sourceforge.net/xml/" projname="TreeRawFull_data" version="1.3.0" audacityversion="2.1.2" sel0="0.0000000000" sel1="0.0000000000" vpos="0" h="0.0000000000" zoom="31.0620525763" rate="48000.0" snapto="off" selectionformat="hh:mm:ss + milliseconds" frequencyformat="Hz" bandwidthformat="octaves">
+	<tags/>
+	<wavetrack name="405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable" channel="0" linked="1" mute="0" solo="0" height="150" minimized="0" isSelected="0" rate="48000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="1188331">
+				<waveblock start="0">
+					<pcmaliasblockfile summaryfile="e000073c.auf" aliasfile="/Users/alexduncan/Downloads/405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable.wav" aliasstart="0" aliaslen="262144" aliaschannel="0" min="-0.095102" max="0.108846" rms="0.007808"/>
+				</waveblock>
+				<waveblock start="262144">
+					<pcmaliasblockfile summaryfile="e00001cd.auf" aliasfile="/Users/alexduncan/Downloads/405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable.wav" aliasstart="262144" aliaslen="262144" aliaschannel="0" min="-0.10187" max="0.083509" rms="0.008189"/>
+				</waveblock>
+				<waveblock start="524288">
+					<pcmaliasblockfile summaryfile="e00005f3.auf" aliasfile="/Users/alexduncan/Downloads/405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable.wav" aliasstart="524288" aliaslen="262144" aliaschannel="0" min="-0.131591" max="0.161735" rms="0.008061"/>
+				</waveblock>
+				<waveblock start="786432">
+					<pcmaliasblockfile summaryfile="e00008f7.auf" aliasfile="/Users/alexduncan/Downloads/405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable.wav" aliasstart="786432" aliaslen="262144" aliaschannel="0" min="-0.220454" max="0.21935" rms="0.008389"/>
+				</waveblock>
+				<waveblock start="1048576">
+					<pcmaliasblockfile summaryfile="e0000214.auf" aliasfile="/Users/alexduncan/Downloads/405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable.wav" aliasstart="1048576" aliaslen="139755" aliaschannel="0" min="-0.240138" max="0.202239" rms="0.006855"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable" channel="1" linked="0" mute="0" solo="0" height="150" minimized="0" isSelected="0" rate="48000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="1188331">
+				<waveblock start="0">
+					<pcmaliasblockfile summaryfile="e00003ee.auf" aliasfile="/Users/alexduncan/Downloads/405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable.wav" aliasstart="0" aliaslen="262144" aliaschannel="1" min="-0.072379" max="0.065572" rms="0.007179"/>
+				</waveblock>
+				<waveblock start="262144">
+					<pcmaliasblockfile summaryfile="e0000a77.auf" aliasfile="/Users/alexduncan/Downloads/405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable.wav" aliasstart="262144" aliaslen="262144" aliaschannel="1" min="-0.075871" max="0.070498" rms="0.007391"/>
+				</waveblock>
+				<waveblock start="524288">
+					<pcmaliasblockfile summaryfile="e0000f53.auf" aliasfile="/Users/alexduncan/Downloads/405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable.wav" aliasstart="524288" aliaslen="262144" aliaschannel="1" min="-0.160683" max="0.15809" rms="0.007588"/>
+				</waveblock>
+				<waveblock start="786432">
+					<pcmaliasblockfile summaryfile="e0000833.auf" aliasfile="/Users/alexduncan/Downloads/405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable.wav" aliasstart="786432" aliaslen="262144" aliaschannel="1" min="-0.215711" max="0.186345" rms="0.008079"/>
+				</waveblock>
+				<waveblock start="1048576">
+					<pcmaliasblockfile summaryfile="e0000fcf.auf" aliasfile="/Users/alexduncan/Downloads/405133__mjeno__autumn-forest-leaves-falling-near-pond-i-loopable.wav" aliasstart="1048576" aliaslen="139755" aliaschannel="1" min="-0.427554" max="0.630738" rms="0.007293"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+</project>

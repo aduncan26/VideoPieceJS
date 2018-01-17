@@ -11,9 +11,12 @@ function createVideoObject(xPos, zPos, yRot, width, height, material){
 
     scene.add(vidPlane);
     allClickableObjects.push(vidPlane);
+    trees.push(vidPlane);
 }
 
 var openWindows = [];
+
+var trees = [];
 
 var queryTerm = 'nature';
 
@@ -29,7 +32,10 @@ var urls = [
     'https://yandex.com/images/search?text=' + queryTerm,
     'http://image.so.com/i?q=' + queryTerm + '&src=tab_image',
     'https://search.daum.net/search?w=img&nil_search=btn&DA=NTB&enc=utf8&q=' + queryTerm
-]
+];
+
+var maxTreeAudio = 0.6;
+var minTreeAudio = 0.2;
 
 function launchImageWindow(imageURL){
     var width = 300 + Math.floor(Math.random() * 600);
@@ -41,17 +47,19 @@ function launchImageWindow(imageURL){
     var newWin = window.open(imageURL,'windowName' + openWindows.length,'resizable=1,scrollbars=1,fullscreen=100,height=' + height.toString() + ',width=' + width.toString() + ',left=' + posX.toString() + ',top=' + posY.toString(), 'toolbar=0, menubar=0,status=1');
 
     openWindows.push(newWin);
+//    let newMsg = new SpeechSynthesisUtterance("Hello my friend, did this actually work?");
+//    newWin.speechSynthesis.speak(newMsg);
 
-    console.log(newWin);
 }
 
-function closeAllWindows(){
+function closeAllWindows(){   
     for(var i = openWindows.length - 1; i >= 0; i--){
         var oldWindow = openWindows.pop();
         oldWindow.close();
     }
 
     console.log(openWindows.length);
+    self.close();
 }
 
 function changeVideoSpeed(speed){
@@ -77,9 +85,9 @@ function createTrees(){
     camFacing.multiplyScalar(12);
     createVideoObject(camFacing.x, camFacing.z, 0, 80, 80, treeMat);
     
-    for(var i = 0; i < 150; i++){
-        let x = (Math.random() - 0.5) * 2000;
-        let z = (Math.random() - 0.5) * 2000;
+    for(var i = 0; i < 100; i++){
+        let x = (Math.random() - 0.5) * 2500;
+        let z = (Math.random() - 0.5) * 2500;
         let w = 80 + (Math.random()) * 20;
         while(Math.abs(x) < 50 && Math.abs(z) < 15){
             z *= 1.1;
@@ -101,22 +109,35 @@ function createSky(){
     scene.add(sky);
 }
 
-function createMice(){
-    
-}
-
-function createFox(){
-    
-}
-
 function createSceneObjects(){
     createSky();
     
     var terrain;
     generateTerrain(terrain, scene);
 
-//    createTrees();
+    createTrees();
     
+}
+
+function runEnvironmentAudio(glitching){
+    let minDist = 100000;
+    let noSoundDist = 100;
+    
+    for(let i = 0; i < trees.length; i++){
+        let d = playerObj.getWorldPosition().distanceTo(trees[i].position);
+        if(d < minDist){
+            minDist = d;
+        }
+    }
+
+    let adjust = maxTreeAudio - minTreeAudio;
+    
+    if(!glitching){
+        treeAudio.volume = adjust - adjust * Math.min(minDist/noSoundDist, 1) + minTreeAudio;
+                
+    } else{
+        dTreeAudio.volume = adjust - adjust * Math.min(minDist/noSoundDist, 1) + minTreeAudio;
+    }
 }
 
 
