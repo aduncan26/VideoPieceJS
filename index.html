@@ -8,6 +8,7 @@
 		<style>
 			html, body {
 				height: 100%;
+                width: 100%;
 				overflow: hidden;
 			}
 			#blocker {
@@ -47,15 +48,19 @@
             
 		</style>
 	</head>
-	<body>
-        <div id="container"></div>
+	<body style="
+        margin-left: 0px;
+        margin-bottom: 0px;
+        margin-top: 0px;
+        margin-right: 0px;
+    ">
+        
+<!--        <div id="container"></div>-->
         
         <audio id="crowAudio" src="audio/CrowRaw.wav" loop=true></audio>
         <audio id="treeAudio" src="audio/TreeRawLong.wav" loop=true></audio>
         <audio id="dCrowAudio" src="audio/CrowDistort.wav" loop=true></audio>
         <audio id="dTreeAudio" src="audio/TreeDistortLong.wav" loop=true></audio>
-        
-       
         
         <div id="blocker">   
 			<div id="title">
@@ -78,11 +83,13 @@
 
             var crowAudio = document.getElementById("crowAudio");
             var dCrowAudio = document.getElementById("dCrowAudio");
+            
+            var block;
                         
             let loopAnimReq;
             
             let introTimer = 0;
-            let introTime = 20;
+            let introTime = 1;//20;
             
             let lastNow;
             
@@ -129,7 +136,7 @@
                     }
                 } else{
                     startNextPhase = true;
-                    let block = document.getElementById("blocker");
+                    block = document.getElementById("blocker");
                     document.body.removeChild(block);
                     controls = new THREE.PointerLockControls( camera, scene );
                     
@@ -159,6 +166,40 @@
             integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
             crossorigin="anonymous">
         </script>
+        
+        <script id="vertex_shader" type="x-shader/x-vertex">
+
+        varying vec2 vUv;
+
+        void main() {
+
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+            vUv = uv;
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+        }
+
+        </script>
+
+        <script id="fragment_shader" type="x-shader/x-fragment">
+
+        uniform sampler2D texture;
+        uniform sampler2D texture2;
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+
+        void main() {
+            vec4 tColor = texture2D( texture, vUv );
+            vec4 tColor2 = texture2D( texture2, vUv ) * 0.7;
+        
+            gl_FragColor = vec4((tColor.rgb + tColor2.rgb), 1.0);
+
+        }
+
+        </script>
 
         <script src="js/PointerLockControls.js"></script>
         <script src="js/TextToSpeech.js"></script>
@@ -176,6 +217,7 @@
 
             window.onload = function () { console.log("Loaded") };
 
+            var tex = new THREE.TextureLoader().load( "images/radial-gradient.png" );
             
             var clock = new THREE.Clock();
             var globalSpeed = 1;
@@ -184,12 +226,18 @@
             var videoArray = [];
             var timer = 0;
             var gameStateVar = 0;
-            var crescendoDuration = 60;
+            var crescendoDuration = 30;
             
             var worldEdge = 1400;
             
             var playerObj;
             
+            var windowOpenWaitTime = 0;
+            var windowOpenWaitTimer = 0;
+            
+            var windowCloseWaitTime = 30;
+            var windowCloseWaitTimer = 0;
+                        
             function changeSpeed(newSpeed){
                 globalSpeed = newSpeed;
                 
@@ -201,21 +249,39 @@
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
-
 			}
             
             var allClickableObjects = [];
             
             var glitchAudio = false;
+            
+            var runGame = true;
         
             function update(){
+                if(launchedWindows){
+                    windowCloseWaitTimer += deltaTime;
+                    if(windowCloseWaitTimer > windowCloseWaitTime){
+                        windowCloseWaitTimer = 0;
+                        closeAllWindows();
+                        if(openWindows.length <= 0){
+                            launchedWindows = false;
+                            //This doesn't work right now, figure out a way to make it
+                            //self.close();
+                            document.body.appendChild(block);
+                            document.body.removeChild(renderer.domElement);
+                        }
+                    }
+                }
+                
+                if(runGame === false)
+                    return;
+                
                 deltaTime = clock.getDelta();
                 timer += deltaTime * globalSpeed;
                 
                 let t = timer/crescendoDuration;
                 
                 if(flock){
-//                    handleSine();
                     flock.run();
                 }
                 else if(t > 0.5){
@@ -242,17 +308,28 @@
                 runEnvironmentAudio(glitchAudio);
                 runAnimalAudio(glitchAudio);
                 
-                
-                if(t > 1 && t < 1.1){
-                    for(var i = 0; i < urls.length; i++){
-                        launchImageWindow(urls[i]);
-                    }
-                } else if(t > 1.1){
-                    closeAllWindows();
+                if(t > 1 && launchWindows === false && launchedWindows === false){
+                    launchWindows = true;
                 }
                 
-                if(controls.getRaycast() === false && t > 0.1){
+                if(launchWindows){
+                    windowOpenWaitTimer += deltaTime;
+                    if(windowOpenWaitTimer > windowOpenWaitTime){
+                        windowOpenWaitTimer = 0;
+                        launchImageWindow(urls[windowIndex]);
+                        windowIndex++;
+                        if(windowIndex >= urls.length){
+                            launchWindows = false;
+                            launchedWindows = true;
+                            runGame = false;
+
+                        }
+                    }
+                }
+                
+                if(controls.getRaycast() === false && t > 0){
                     controls.setRaycast(true);
+                    createReticle();
                 }
                 
                 handleProgress(t);
@@ -276,6 +353,15 @@
                 sepSine = Math.max(Math.sin(sepHolder), 0);
             }
             
+            function createReticle(){
+                var retGeo = new THREE.CircleGeometry(0.005, 8);
+                var retMat = new THREE.MeshBasicMaterial({color:0xdddddd, side: THREE.FrontSide});
+                var reticle = new THREE.Mesh(retGeo, retMat);
+                reticle.position.set(0, 0, -1);
+                scene.add(reticle);
+                camera.add(reticle);
+            }
+            
             function draw(){
                 renderer.render(scene, camera);
             }
@@ -289,19 +375,12 @@
 			}
             
             function init() {
-                var container = document.getElementById( 'container' );
+//                container = document.getElementById( 'container' );
                 camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
                 scene = new THREE.Scene();
                 scene.add(camera);
                 renderer = new THREE.WebGLRenderer();
                 renderer.setSize(window.innerWidth, window.innerHeight);
-
-                var retGeo = new THREE.CircleGeometry(0.005, 8);
-                var retMat = new THREE.MeshBasicMaterial({color:0xdddddd, side: THREE.DoubleSide});
-                var reticle = new THREE.Mesh(retGeo, retMat);
-                reticle.position.set(0, 0, -1);
-                scene.add(reticle);
-                camera.add(reticle);
 
                 createSceneObjects();
                 createLandCreatures();

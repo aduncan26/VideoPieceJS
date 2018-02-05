@@ -60,6 +60,40 @@ function nextUtterance(event){
     window.speechSynthesis.speak(msg);
 };
 
+var openWindows = [];
+var launchWindows = false;
+var windowIndex = 0;
+var launchedWindows = false;
+
+function launchImageWindow(imageURL){    
+    var width = 500 + Math.floor(Math.random() * 600);
+    var height = 300 + Math.floor(Math.random() * 600);
+
+    var posX = -window.innerWidth/4 + Math.random() * (window.innerWidth);
+    var posY = Math.random() * (window.innerHeight - height/2);
+
+    var newWin = window.open(imageURL,'windowName' + openWindows.length,'resizable=1,scrollbars=1,fullscreen=100,height=' + height.toString() + ',width=' + width.toString() + ',left=' + posX.toString() + ',top=' + posY.toString(), 'toolbar=0, menubar=0,status=1');
+
+    openWindows.push(newWin);
+//    let newMsg = new SpeechSynthesisUtterance("Hello my friend, did this actually work?");
+//    newWin.speechSynthesis.speak(newMsg);
+
+}
+
+function closeWindow(){    
+    var oldWindow = openWindows.pop();
+    oldWindow.close();
+
+    return openWindows.length;
+}
+
+function closeAllWindows(){ 
+    for(let i = openWindows.length - 1; i >= 0; i--){
+        var oldWindow = openWindows.pop();
+        oldWindow.close();
+    }    
+}
+
 //var voices;
 //
 //window.speechSynthesis.onvoiceschanged = function() {
