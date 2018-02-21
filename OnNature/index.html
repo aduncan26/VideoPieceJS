@@ -1,0 +1,441 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>VideoPiece</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			html, body {
+				height: 100%;
+                width: 100%;
+				overflow: hidden;
+			}
+			#blocker {
+
+				position: absolute;
+
+				width: 100%;
+				height: 100%;
+
+				background-color: rgba(0,0,0,1);
+
+			}
+            #title {
+                position: relative;
+                
+				width: 100%;
+				height: 100%;
+
+				display: -webkit-box;
+				display: -moz-box;
+				display: box;
+
+				-webkit-box-orient: horizontal;
+				-moz-box-orient: horizontal;
+				box-orient: horizontal;
+
+				-webkit-box-pack: center;
+				-moz-box-pack: center;
+				box-pack: center;
+
+				-webkit-box-align: center;
+				-moz-box-align: center;
+				box-align: center;
+
+				text-align: center;
+			}
+            
+		</style>
+	</head>
+	<body style="
+        margin-left: 0px;
+        margin-bottom: 0px;
+        margin-top: 0px;
+        margin-right: 0px;
+    ">
+                
+        <audio id="crowAudio" src="audio/CrowRaw_compressed.mp3" loop=true></audio>
+        <audio id="treeAudio" src="audio/TreeRawLong_compressed.mp3" loop=true></audio>
+        <audio id="dCrowAudio" src="audio/CrowDistort_compressed.mp3" loop=true></audio>
+        <audio id="dTreeAudio" src="audio/TreeDistortLong_compressed.mp3" loop=true></audio>
+        
+        <div id="blocker">   
+			<div id="title">
+                <img id="O" src="images/O.gif" style="width: 100px;">
+                <img id="N1" src="images/N.gif" style="width: 100px;">
+                <img id="N2" src="images/N1.gif" style="padding-left: 50px; width: 100px;">
+                <img id="A" src="images/A.gif" style="width: 100px;">
+                <img id="T" src="images/T.gif" style="width: 100px;">
+                <img id="U" src="images/U.gif" style="width: 100px;">
+                <img id="R" src="images/R.gif" style="width: 100px;">
+                <img id="E" src="images/E.gif" style="width: 100px;">
+			</div>
+
+		</div>
+        
+        <script>
+            var startNextPhase = false;
+            var treeAudio = document.getElementById("treeAudio");
+            var dTreeAudio = document.getElementById("dTreeAudio");
+
+            var crowAudio = document.getElementById("crowAudio");
+            var dCrowAudio = document.getElementById("dCrowAudio");
+            
+            var block;
+                        
+            let loopAnimReq;
+            
+            let introTimer = 0;
+            let introTime = 15;
+            
+            let lastNow;
+                        
+            var windowName = 'loadGame'; 
+            var popUp = window.open('/empty.html', windowName, 'width=1, height=1');
+            if (popUp == null || typeof(popUp)=='undefined') {  
+                alert('This game requires pop-ups! Please disable your pop-up blocker and reload the page.'); 
+            } 
+            else {  
+                popUp.close();
+                start();
+            }
+                    
+            function start(){
+                lastNow = Date.now();
+                
+                treeAudio.volume = 0;
+                crowAudio.volume = 0;
+                dTreeAudio.volume = 0;
+                dCrowAudio.volume = 0;
+
+                treeAudio.play();
+                crowAudio.play();
+                dTreeAudio.play();
+                dCrowAudio.play();
+                
+                introLoop();
+            }
+            
+            function introLoop(){
+                let now = Date.now();
+                let dt = now - lastNow;
+                lastNow = now;
+                
+                introTimer += dt;
+                
+                let t = introTimer/(introTime * 1000);
+                
+                if(t < 1){             
+                    loopAnimReq = requestAnimationFrame(introLoop);
+                    
+                    if(t < 0.98){
+                        treeAudio.volume = Math.pow(t, 1.5);
+                        crowAudio.volume = Math.pow(t, 1.5);
+                    } else{
+                        treeAudio.volume = 0;
+                        crowAudio.volume = 0;
+                        dTreeAudio.volume = Math.pow(t, 1.5);
+                        dCrowAudio.volume = Math.pow(t, 1.5);
+                    }
+                } else{
+                    startNextPhase = true;
+                    block = document.getElementById("blocker");
+                    document.body.removeChild(block);
+                    controls = new THREE.PointerLockControls( camera, scene );
+                    
+                    dTreeAudio.pause();
+                    dCrowAudio.pause();
+                    crowAudio.pause();
+                    startMessageLoop();
+                }
+                
+            }
+        </script>
+        
+        <video muted id="skyVideo" src="videos/FreemediabankSky.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
+        <video muted id="grassVideo" src="videos/GrassVid2.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
+        <video muted id="treeVideo" src="videos/OakVid.mp4" autoplay=true loop=true style="display:none"></video>
+        <video muted id="ravenVideo" src="videos/RavenVid.mp4" autoplay=true loop=true style="display:none"></video>
+        <video muted id="foxVideo" src="videos/FoxVid.mp4" autoplay=true loop=true style="display:none"></video>
+        <video muted id="mouseVideo" src="videos/MouseVid.mp4" autoplay=true loop=true style="display:none"></video>
+        
+        <audio id="bgSound" src="audio/LongLoop_compressed.mp3" loop=true></audio>
+        
+		<script src="js/three.min.js"></script>
+        <script src="js/PerlinNoiseSimplex.js"></script>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous">
+        </script>
+        
+        <script id="vertex_shader" type="x-shader/x-vertex">
+
+        varying vec2 vUv;
+
+        void main() {
+
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+            vUv = uv;
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+        }
+
+        </script>
+
+        <script id="fragment_shader" type="x-shader/x-fragment">
+
+        uniform sampler2D texture;
+        uniform sampler2D texture2;
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+
+        void main() {
+            vec4 tColor = texture2D( texture, vUv );
+            vec4 tColor2 = texture2D( texture2, vUv ) * 0.7;
+        
+            gl_FragColor = vec4((tColor.rgb + tColor2.rgb), 1.0);
+
+        }
+
+        </script>
+
+        <script src="js/PointerLockControls.js"></script>
+        <script src="js/TextToSpeech.js"></script>
+        <script src="js/TerrainGenerator.js"></script>
+        <script src="js/SceneObjectsManager.js"></script>
+        <script src="js/boid.js"></script>
+        <script src="js/flock.js"></script>
+        <script src="js/mouse.js"></script>
+        <script src="js/fox.js"></script>
+        <script src="js/AnimalManager.js"></script>
+
+		
+		<script>            
+            window.onload = function () { console.log("Loaded") };
+
+            var tex = new THREE.TextureLoader().load( "images/radial-gradient.png" );
+            
+            var clock = new THREE.Clock();
+            var globalSpeed = 1;
+
+            var camera, scene, renderer, controls;
+            var videoArray = [];
+            var timer = 0;
+            var gameStateVar = 0;
+            var crescendoDuration = 600;
+                        
+            var worldEdge = 1400;
+            
+            var playerObj;
+            
+            var windowOpenWaitTime = 15;
+            var windowOpenWaitTimer = 15;
+            
+            var windowCloseWaitTime = 35;
+            var windowCloseWaitTimer = 0;
+            
+            var bgAudio = document.getElementById("bgSound");
+            
+            var allClickableObjects = [];
+            
+            var glitchAudio = false;
+            var glitchTimer = 0;
+            var glitchTime = 0.2;
+            
+            var runGame = true;
+            
+            function changeSpeed(newSpeed){
+                globalSpeed = newSpeed;
+                
+                changeVideoSpeed(globalSpeed);
+            }
+            
+            function glitch(){
+                if(!glitchAudio){
+                    treeAudio.pause();
+                    crowAudio.pause();
+                    dTreeAudio.play();
+                    dCrowAudio.play();
+                    glitchAudio = true;
+                }
+                
+                let cycleTime = Math.floor(glitchTimer/glitchTime);
+                
+                glitchTimer += deltaTime;
+
+                cycleSprite(foxGifTextures, foxMat, cycleTime);
+                cycleSprite(crowGifTextures, crowMat, cycleTime);
+                cycleSprite(miceGifTextures, miceMat, cycleTime);
+                cycleSprite(treeGifTextures, treeMat, cycleTime);
+                cycleSprite(skyGifTextures, skyMat, cycleTime);
+                cycleSprite(grassGifTextures, grassMat, cycleTime);
+            }
+            
+            function cycleSprite(array, material, spriteTime){
+                
+                material.map = array[spriteTime % array.length];
+                material.needsUpdate = true;
+            }
+            
+            function handleProgress(timeFraction){
+                let fraction = Math.min(timeFraction, 1);
+                gameStateVar = Math.pow(fraction, 2) * ((1.5 + 1) * fraction - 1.5);
+                gameStateVar = Math.max(gameStateVar, 0);
+            }
+            
+            function handleSine(){
+                sepHolder += sepSineInc * deltaTime * globalSpeed;
+                
+                sepSine = Math.max(Math.sin(sepHolder), 0);
+            }
+            
+            function createReticle(){
+                var retGeo = new THREE.CircleGeometry(0.005, 8);
+                var retMat = new THREE.MeshBasicMaterial({color:0xdddddd, side: THREE.FrontSide});
+                var reticle = new THREE.Mesh(retGeo, retMat);
+                reticle.position.set(0, 0, -1);
+                scene.add(reticle);
+                camera.add(reticle);
+            }
+        
+            function update(){
+                if(launchedWindows){
+                    windowCloseWaitTimer += deltaTime;
+                    if(windowCloseWaitTimer > windowCloseWaitTime){
+                        windowCloseWaitTimer = 0;
+                        closeAllWindows();
+                        if(openWindows.length <= 0){
+                            launchedWindows = false;
+                            document.body.appendChild(block);
+                            document.body.removeChild(renderer.domElement);
+                            dTreeAudio.pause();
+                            dCrowAudio.pause();
+                            window.speechSynthesis.cancel();
+                        }
+                    }
+                }
+                
+                if(runGame === false)
+                    return;
+                
+                deltaTime = clock.getDelta();
+                timer += deltaTime * globalSpeed;
+                
+                let t = timer/crescendoDuration;
+                
+                 if(controls){
+                    controls.update(deltaTime);
+//                    if(t > 0.95){
+//                        controls.setYHeight(controls.getYHeight() + 100 * deltaTime);
+//                    }
+                }
+                
+                runMouse();
+                runFox();
+                runEnvironmentAudio(glitchAudio);
+                runAnimalAudio(glitchAudio);
+                
+                if(flock){
+                    flock.run();
+                }
+                else if(t > 0.5){
+                    makeFlock();
+                }
+                
+                if(controls.getRaycast() === false && t > 0.75){
+                    controls.setRaycast(true);
+                    createReticle();
+                }
+                
+                if(t > 0.9){
+                    glitch();
+                }
+
+                 if(t > 1 && launchWindows === false && launchedWindows === false){
+                    launchWindows = true;
+                }
+                
+                if(launchWindows){
+                    windowOpenWaitTimer += deltaTime;
+                    if(windowOpenWaitTimer > windowOpenWaitTime){
+                        windowOpenWaitTimer = 0;
+                        windowOpenWaitTime /= 2.5;
+                        launchImageWindow(urls[windowIndex]);
+                        windowIndex++;
+                        if(windowIndex >= urls.length){
+                            launchWindows = false;
+                            launchedWindows = true;
+                            runGame = false;
+
+                        }
+                    }
+                }
+                
+                if(bgAudio.volume < 1){
+                    bgAudio.volume = 0.01 + gameStateVar;
+                } else{
+                    bgAudio.volume = 1;
+                }
+                
+                handleProgress(t);
+            }
+                        
+            
+            
+            function draw(){
+                renderer.render(scene, camera);
+            }
+
+			function RunApp() {
+				requestAnimationFrame( RunApp );
+                if(startNextPhase){
+                    update();
+                    draw();
+                }
+			}
+            
+            function init() {
+                camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
+                scene = new THREE.Scene();
+                scene.add(camera);
+                renderer = new THREE.WebGLRenderer();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+
+                createSceneObjects();
+                createLandCreatures();
+
+                document.body.appendChild(renderer.domElement);
+                
+                bgAudio.volume = 0.01;
+                bgAudio.play();
+            }
+            
+            window.addEventListener('keydown', function(event){if(event.keycode===81) closeAllWindows();});
+            
+            window.addEventListener( 'resize', onWindowResize, false );
+            
+            document.addEventListener('keydown', function(event){ 
+                if(event.keyCode === 220){ 
+                    controls.setCanMove(true);
+                } 
+            });
+
+			function onWindowResize() {
+                
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+            
+            init();
+
+			RunApp();
+
+		</script>
+	</body>
+</html>

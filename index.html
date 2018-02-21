@@ -54,13 +54,11 @@
         margin-top: 0px;
         margin-right: 0px;
     ">
-        
-<!--        <div id="container"></div>-->
-        
-        <audio id="crowAudio" src="audio/CrowRaw.wav" loop=true></audio>
-        <audio id="treeAudio" src="audio/TreeRawLong.wav" loop=true></audio>
-        <audio id="dCrowAudio" src="audio/CrowDistort.wav" loop=true></audio>
-        <audio id="dTreeAudio" src="audio/TreeDistortLong.wav" loop=true></audio>
+                
+        <audio id="crowAudio" src="audio/CrowRaw_compressed.mp3" loop=true></audio>
+        <audio id="treeAudio" src="audio/TreeRawLong_compressed.mp3" loop=true></audio>
+        <audio id="dCrowAudio" src="audio/CrowDistort_compressed.mp3" loop=true></audio>
+        <audio id="dTreeAudio" src="audio/TreeDistortLong_compressed.mp3" loop=true></audio>
         
         <div id="blocker">   
 			<div id="title">
@@ -89,7 +87,7 @@
             let loopAnimReq;
             
             let introTimer = 0;
-            let introTime = 1;//20;
+            let introTime = 20;
             
             let lastNow;
             
@@ -118,11 +116,7 @@
                 
                 let t = introTimer/(introTime * 1000);
                 
-                if(t < 1){
-//                    let cVal = Math.round(255 * t).toString();
-//                    
-//                    instructionsText.style.color = "rgba(0,0,0," + cVal + ");";
-                                        
+                if(t < 1){             
                     loopAnimReq = requestAnimationFrame(introLoop);
                     
                     if(t < 0.98){
@@ -143,6 +137,7 @@
                     dTreeAudio.pause();
                     dCrowAudio.pause();
                     crowAudio.pause();
+                    startMessageLoop();
                 }
                 
             }
@@ -158,6 +153,8 @@
         <video muted id="ravenVideo" src="videos/RavenVid.mp4" autoplay=true loop=true style="display:none"></video>
         <video muted id="foxVideo" src="videos/FoxVid.mp4" autoplay=true loop=true style="display:none"></video>
         <video muted id="mouseVideo" src="videos/MouseVid.mp4" autoplay=true loop=true style="display:none"></video>
+        
+        <audio src="audio/LongLoop_compressed.mp3" loop=true></audio>
         
 		<script src="js/three.min.js"></script>
         <script src="js/PerlinNoiseSimplex.js"></script>
@@ -226,8 +223,8 @@
             var videoArray = [];
             var timer = 0;
             var gameStateVar = 0;
-            var crescendoDuration = 30;
-            
+            var crescendoDuration = 60;
+                        
             var worldEdge = 1400;
             
             var playerObj;
@@ -237,7 +234,7 @@
             
             var windowCloseWaitTime = 30;
             var windowCloseWaitTimer = 0;
-                        
+                                    
             function changeSpeed(newSpeed){
                 globalSpeed = newSpeed;
                 
@@ -288,7 +285,7 @@
                     makeFlock();
                 }
                 
-                if(!glitchAudio && t > 0.9){
+                if(!glitchAudio && t > 0.98){
                     glitchAudio = true;
                     treeAudio.pause();
                     crowAudio.pause();
@@ -327,7 +324,7 @@
                     }
                 }
                 
-                if(controls.getRaycast() === false && t > 0){
+                if(controls.getRaycast() === false && t > 0.75){
                     controls.setRaycast(true);
                     createReticle();
                 }
@@ -375,7 +372,6 @@
 			}
             
             function init() {
-//                container = document.getElementById( 'container' );
                 camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
                 scene = new THREE.Scene();
                 scene.add(camera);
