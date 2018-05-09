@@ -55,7 +55,7 @@ function initMiceAndHoles (){
     let _geo = new THREE.PlaneGeometry(10, 10);//new THREE.SphereGeometry(5, 8, 8);
     miceMat = new THREE.MeshBasicMaterial({map: miceVidTex, side: THREE.DoubleSide});
     
-    for(var i = 0; i < 25; i++){
+    for(var i = 0; i < 30; i++){
         let x = (Math.random() - 0.5) * maxSize;
         let z = (Math.random() - 0.5) * maxSize;
         let y = globalNoise.noise(x, z);

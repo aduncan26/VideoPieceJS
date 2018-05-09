@@ -9,8 +9,8 @@ var Fox = function(scene, x, y, z, geo, mat){
   
   //TUNING VARIABLES
   //Speeds
-  var walkSpeed = 60;
-  var stalkSpeed = 40;
+  var walkSpeed = 40;
+  var stalkSpeed = 20;
   var chaseSpeed = 160;
   var maxspeed = 60;
   var maxforce = 10;
@@ -91,7 +91,6 @@ var Fox = function(scene, x, y, z, geo, mat){
         target = targetMouse.getPosition();
         
         if(obj.position.distanceTo(target) < chaseRange && chasing === false && eat === false){
-            console.log("CHASE IS ON!");
             chasing = true;
             switchMaxSpeed(chaseSpeed);
         }
@@ -100,7 +99,6 @@ var Fox = function(scene, x, y, z, geo, mat){
             if(targetMouse.isActive() === false){
                 hunger = minHunger/2;
                 stopChasing();
-                console.log("GOT AWAY!");
             }
             if(obj.position.distanceTo(target) < 15){
                 hunger = minHunger + (Math.random() * (maxHunger - minHunger));
@@ -110,7 +108,6 @@ var Fox = function(scene, x, y, z, geo, mat){
                 velocity.multiplyScalar(0);
                 acceleration.multiplyScalar(0);
                 chasing = false;
-                console.log("CAUGHT IT!");
             }
         } else if(eat){
             eatTimer -= deltaTime;
@@ -168,7 +165,7 @@ var Fox = function(scene, x, y, z, geo, mat){
   function noiseTargetTrigger(){
       let noise = globalNoise.noise(randStart, timer * 1000, false);
       
-      if(noise > 0.4 && target === null){
+      if(noise > 0.75 && target === null){
           makeTarget();
       }      
   }
@@ -180,8 +177,8 @@ var Fox = function(scene, x, y, z, geo, mat){
     
   function makeTarget(){
       switchMaxSpeed(walkSpeed);
-      let minDist = 200;
-      let maxDist = 500;
+      let minDist = 150;
+      let maxDist = 350;
       
       let randX = (Math.random() - 0.5) * 2;
       let randZ = (Math.random() - 0.5) * 2;

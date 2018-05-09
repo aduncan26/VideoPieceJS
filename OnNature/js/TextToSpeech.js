@@ -19,7 +19,7 @@ var urls = [
 var getUrl = 'https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&indexpageids=&titles=' + queryTerm;
             
 var msg;
-var baseVar = 0.0075;
+var baseVar = 0.005;
 
 var jsonText;
 $.ajax({
@@ -67,8 +67,7 @@ function nextUtterance(event){
     
     msg = new SpeechSynthesisUtterance(jsonText);
     msg.rate = 1.25;
-    msg.volume = gameStateVar + baseVar;
-    console.log(msg.volume);
+    msg.volume = textSpeechAudio + baseVar;
     msg.onend = nextUtterance;
     window.speechSynthesis.speak(msg);
 };

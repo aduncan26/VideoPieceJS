@@ -106,7 +106,6 @@ THREE.PointerLockControls = function ( camera, scene ) {
 		fragmentShader  : document.getElementById( 'fragment_shader' ).textContent
 	});
     
-//    var hoveredMat = new THREE.MeshBasicMaterial({color:0x778877, side: THREE.DoubleSide});
     var storeMat;
     
     var rayCast = function(){
@@ -123,7 +122,6 @@ THREE.PointerLockControls = function ( camera, scene ) {
                     storeMat = hoveredObject.material;
                     hoveredMat.uniforms.texture.value = hoveredObject.material.map;
                     hoveredMat.needsUpdate = true;
-//                    hoveredMat.map = hoveredObject.material.map;
                     hoveredObject.material = hoveredMat;
                 }
                 else if(hoveredObject !== params[0].object){
@@ -132,7 +130,6 @@ THREE.PointerLockControls = function ( camera, scene ) {
                     storeMat = hoveredObject.material;
                     hoveredMat.uniforms.texture.value = hoveredObject.material.map;
                     hoveredMat.needsUpdate = true;
-//                    hoveredMat.map = hoveredObject.material.map;
                     hoveredObject.material = hoveredMat;
                 }
             } else{
@@ -168,7 +165,6 @@ THREE.PointerLockControls = function ( camera, scene ) {
         }
     }
     
-    //f(x) = (sin(2 * π * (x - 1/4)) + 1) / 2
     function tweenToObject(objFrom){
         let vecMag = new THREE.Vector3();
         vecMag.subVectors(tweenObject.position, objFrom.position);
@@ -299,7 +295,10 @@ THREE.PointerLockControls = function ( camera, scene ) {
     this.setCanMove = function(bool){
         scope.canMove = bool;
         if(bool === true){
+            let pos = new THREE.Vector3(yawObject.parent.position.x, yawObject.parent.position.y, yawObject.parent.position.z);
+            
             yawObject.parent = null;
+            yawObject.position.set(pos.x, pos.y, pos.z);
         }
     }
     

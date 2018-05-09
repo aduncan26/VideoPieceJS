@@ -69,8 +69,8 @@ function createTrees(){
     
     var camFacing = new THREE.Vector3();
     camFacing.addVectors(camera.position, camera.getWorldDirection());
-    camFacing.multiplyScalar(12);
-    createVideoObject(camFacing.x, camFacing.z, 0, 80, 80, treeMat);
+    camFacing.multiplyScalar(25);
+    createVideoObject(camFacing.x, camFacing.z, 0, 100, 100, treeMat);
     
     let tempVec2 = new THREE.Vector2(0,0);
     
@@ -86,9 +86,8 @@ function createTrees(){
             tempVec2.multiplyScalar(1.1);
         }
         
-        let w = 80 + (Math.random()) * 20;
+        let w = 100 + (Math.random()) * 20;
         
-        console.log(tempVec2.x + " " + tempVec2.y + " " + i);
         var rotY = 0;
         createVideoObject(tempVec2.x, tempVec2.y, rotY, w, w, treeMat);
     }

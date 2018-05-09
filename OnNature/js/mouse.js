@@ -40,7 +40,10 @@ var Mouse = function(scene, x, y, z, geo, mat, matHeight){
   var reachHoleDist = 8;
   var straightToHoleDist = 25;
   var straightToHole = false;
-    var fleeing = false;
+  var fleeing = false;
+    
+  var lastPosition = new THREE.Vector2();
+  var currentPosition = new THREE.Vector2();
     
   this.getPosition = function(){
       return obj.position;
@@ -80,6 +83,12 @@ var Mouse = function(scene, x, y, z, geo, mat, matHeight){
     
   // Method to update position
   function update() {
+    currentPosition.set(obj.position.x, obj.position.z);
+    if(currentPosition.lengthSq() > worldEdge * worldEdge){
+        obj.position.set(lastPosition.x, obj.position.y, lastPosition.y);  
+    }
+    lastPosition.set(currentPosition.x, currentPosition.y);
+      
     if(runTimer){
         holeTimer += deltaTime;
         if(holeTimer > holeTime){
@@ -95,11 +104,10 @@ var Mouse = function(scene, x, y, z, geo, mat, matHeight){
         noiseTargetTrigger();
     } else {
         let distToHole = obj.position.distanceTo(runToHole);
-        
+                
         if(distToHole < reachHoleDist){
             reachHole();
         } else if(distToHole < straightToHoleDist && !straightToHole){
-            console.log("STRAIGHT SHOT");
             straightToHole = true;
         }
     }
@@ -245,6 +253,13 @@ var Mouse = function(scene, x, y, z, geo, mat, matHeight){
 //          retValue = new THREE.Vector3(fleeDir.x - velocity.x, 0, fleeDir.z - velocity.z);
 //          retValue.normalize();
 //          retValue.multiplyScalar(fleeForce);
+      } else if(foxDist > fleeRange + 40 && fleeing){
+          fleeing = false;
+          runToHole = null;
+          target = null;
+          velocity.multiplyScalar(0);
+          acceleration.multiplyScalar(0);
+          switchMaxSpeed(walkSpeed);
       }
       
 //      return retValue;
@@ -258,6 +273,9 @@ var Mouse = function(scene, x, y, z, geo, mat, matHeight){
   var killed = false;
     
   this.eatMouse = function(){
+      if(controls.getObject().parent == obj){
+          controls.setCanMove(true);
+      }
       killed = true;
       sceneFox.getObj().add(obj);
       obj.position.set(0,0,0);
@@ -276,7 +294,7 @@ var Mouse = function(scene, x, y, z, geo, mat, matHeight){
       return active;
   }
     
-  function reachHole(){      
+  function reachHole(){
       scene.remove(obj);
       
       fleeing = false;
@@ -290,6 +308,10 @@ var Mouse = function(scene, x, y, z, geo, mat, matHeight){
       lastHole = runToHole;
       
       runToHole = null;
+      
+      if(controls.getObject().parent == obj){
+          controls.setCanMove(true);
+      }
   }
     
   function reappear(){

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>VideoPiece</title>
+		<title>On Nature</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
@@ -10,6 +10,7 @@
 				height: 100%;
                 width: 100%;
 				overflow: hidden;
+                background-color: black;
 			}
 			#blocker {
 
@@ -45,6 +46,27 @@
 
 				text-align: center;
 			}
+            #startButton {
+              -webkit-border-radius: 6;
+              -moz-border-radius: 6;
+              border-radius: 6px;
+              font-family: Courier New;
+              color: #ffffff;
+              font-size: 20px;
+              background: #e45cfa;
+              padding: 10px 20px 10px 20px;
+              text-decoration: none;
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              margin-left: -100px;
+              margin-top: -30px;
+            }
+
+            #startButton:hover {
+              background: #dbadff;
+              text-decoration: none;
+            }
             
 		</style>
 	</head>
@@ -55,12 +77,12 @@
         margin-right: 0px;
     ">
                 
-        <audio id="crowAudio" src="audio/CrowRaw_compressed.mp3" loop=true></audio>
-        <audio id="treeAudio" src="audio/TreeRawLong_compressed.mp3" loop=true></audio>
-        <audio id="dCrowAudio" src="audio/CrowDistort_compressed.mp3" loop=true></audio>
-        <audio id="dTreeAudio" src="audio/TreeDistortLong_compressed.mp3" loop=true></audio>
+        <audio id="crowAudio" src="audio/CrowRaw_compressed.mp4" loop=true></audio>
+        <audio id="treeAudio" src="audio/TreeRawLong_compressed.mp4" loop=true></audio>
+        <audio id="dCrowAudio" src="audio/CrowDistort_compressed.mp4" loop=true></audio>
+        <audio id="dTreeAudio" src="audio/TreeDistortLong_compressed.mp4" loop=true></audio>
         
-        <div id="blocker">   
+        <div id="blocker" style="display:none">   
 			<div id="title">
                 <img id="O" src="images/O.gif" style="width: 100px;">
                 <img id="N1" src="images/N.gif" style="width: 100px;">
@@ -74,23 +96,20 @@
 
 		</div>
         
+        <button id="startButton" type="button" style="display:none">
+        Click to start</button>
+        
+        
         <script>
-            var startNextPhase = false;
-            var treeAudio = document.getElementById("treeAudio");
-            var dTreeAudio = document.getElementById("dTreeAudio");
-
-            var crowAudio = document.getElementById("crowAudio");
-            var dCrowAudio = document.getElementById("dCrowAudio");
+            var treeAudio;
+            var dTreeAudio;
+            var crowAudio;
+            var dCrowAudio;
+            var bgAudio;
             
-            var block;
+            var startButton;
                         
-            let loopAnimReq;
-            
-            let introTimer = 0;
-            let introTime = 15;
-            
-            let lastNow;
-                        
+            //Popup stuff
             var windowName = 'loadGame'; 
             var popUp = window.open('/empty.html', windowName, 'width=1, height=1');
             if (popUp == null || typeof(popUp)=='undefined') {  
@@ -98,21 +117,75 @@
             } 
             else {  
                 popUp.close();
-                start();
+                startButton = document.getElementById("startButton");
+                startButton.addEventListener("click", initializeAllMedia);
+                startButton.style.display = "block";
             }
-                    
-            function start(){
-                lastNow = Date.now();
+            
+            function initializeAllMedia(){
+                document.body.removeChild(startButton);
+                
+                startButton.style.display="none";
+                treeAudio = document.getElementById("treeAudio");
+                dTreeAudio = document.getElementById("dTreeAudio");
+                crowAudio = document.getElementById("crowAudio");
+                dCrowAudio = document.getElementById("dCrowAudio");
+                bgAudio = document.getElementById("bgSound");
                 
                 treeAudio.volume = 0;
                 crowAudio.volume = 0;
                 dTreeAudio.volume = 0;
                 dCrowAudio.volume = 0;
-
+                bgAudio.volume = 0;
+                
                 treeAudio.play();
                 crowAudio.play();
                 dTreeAudio.play();
                 dCrowAudio.play();
+                bgAudio.play();
+                
+                var allMediaToPlay = [
+                    document.getElementById("skyVideo"),
+                    document.getElementById("treeVideo"),
+                    document.getElementById("grassVideo"),
+                    document.getElementById("ravenVideo"),
+                    document.getElementById("foxVideo"),
+                    document.getElementById("mouseVideo")
+                ];
+                
+                for(var i = 0; i < allMediaToPlay.length; i++){
+                    allMediaToPlay[i].play();
+                }
+                
+                startGame();
+            }
+            
+            function startGame(){
+                document.getElementById("blocker").style.display = "block";
+                start();
+            }
+            
+            
+        </script>
+        
+        <script>
+//            javascript:(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);})()
+
+            var startNextPhase = false;
+            
+            var block;
+            
+            let loopAnimReq;
+            
+            let introTimer = 0;
+            let introTime = 1;//15;
+            
+            let lastNow;
+            
+            let loadedNextPhase = false;
+                    
+            function start(){
+                lastNow = Date.now();
                 
                 introLoop();
             }
@@ -125,6 +198,12 @@
                 introTimer += dt;
                 
                 let t = introTimer/(introTime * 1000);
+                
+                if(t > 0.5 && !loadedNextPhase){
+                    init();
+                    RunApp();
+                    loadedNextPhase = true;
+                }
                 
                 if(t < 1){             
                     loopAnimReq = requestAnimationFrame(introLoop);
@@ -140,7 +219,7 @@
                     }
                 } else{
                     startNextPhase = true;
-                    block = document.getElementById("blocker");
+                    block = document.getElementById("blocker")
                     document.body.removeChild(block);
                     controls = new THREE.PointerLockControls( camera, scene );
                     
@@ -153,14 +232,14 @@
             }
         </script>
         
-        <video muted id="skyVideo" src="videos/FreemediabankSky.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
-        <video muted id="grassVideo" src="videos/GrassVid2.mp4" autoplay=true loop=true style="display:none" width="1024" height="512"></video>
-        <video muted id="treeVideo" src="videos/OakVid.mp4" autoplay=true loop=true style="display:none"></video>
-        <video muted id="ravenVideo" src="videos/RavenVid.mp4" autoplay=true loop=true style="display:none"></video>
-        <video muted id="foxVideo" src="videos/FoxVid.mp4" autoplay=true loop=true style="display:none"></video>
-        <video muted id="mouseVideo" src="videos/MouseVid.mp4" autoplay=true loop=true style="display:none"></video>
+        <video muted id="skyVideo" src="videos/FreemediabankSky.mp4" loop=true style="display:none" width="1024" height="512"></video>
+        <video muted id="grassVideo" src="videos/GrassVid2.mp4" loop=true style="display:none" width="1024" height="512"></video>
+        <video muted id="treeVideo" src="videos/OakVid.mp4" loop=true style="display:none"></video>
+        <video muted id="ravenVideo" src="videos/RavenVid.mp4" loop=true style="display:none"></video>
+        <video muted id="foxVideo" src="videos/FoxVid.mp4" loop=true style="display:none"></video>
+        <video muted id="mouseVideo" src="videos/MouseVid.mp4" loop=true style="display:none"></video>
         
-        <audio id="bgSound" src="audio/LongLoop_compressed.mp3" loop=true></audio>
+        <audio id="bgSound" src="audio/LongLoop_compressed.mp4" loop=true></audio>
         
 		<script src="js/three.min.js"></script>
         <script src="js/PerlinNoiseSimplex.js"></script>
@@ -216,8 +295,6 @@
 
 		
 		<script>            
-            window.onload = function () { console.log("Loaded") };
-
             var tex = new THREE.TextureLoader().load( "images/radial-gradient.png" );
             
             var clock = new THREE.Clock();
@@ -226,26 +303,32 @@
             var camera, scene, renderer, controls;
             var videoArray = [];
             var timer = 0;
-            var gameStateVar = 0;
-            var crescendoDuration = 600;
+            var textSpeechAudio = 0;
+            var bgAudioLevel = 0;
+            var crescendoDuration = 5;//480;
                         
-            var worldEdge = 1400;
+            var worldEdge = 1480;
             
             var playerObj;
             
             var windowOpenWaitTime = 15;
             var windowOpenWaitTimer = 15;
+            var windowOpenDivider = 2.5;
             
-            var windowCloseWaitTime = 35;
+            var windowCloseWaitTime = 50;
             var windowCloseWaitTimer = 0;
             
-            var bgAudio = document.getElementById("bgSound");
+            if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1){
+                windowOpenDivider = 1.5;
+                windowCloseWaitTime = 10;
+            }
+
             
             var allClickableObjects = [];
             
             var glitchAudio = false;
             var glitchTimer = 0;
-            var glitchTime = 0.2;
+            var glitchTime = 0.5;
             
             var runGame = true;
             
@@ -267,6 +350,8 @@
                 let cycleTime = Math.floor(glitchTimer/glitchTime);
                 
                 glitchTimer += deltaTime;
+                
+                glitchTime = Math.max(0.05, glitchTime - (deltaTime/100));
 
                 cycleSprite(foxGifTextures, foxMat, cycleTime);
                 cycleSprite(crowGifTextures, crowMat, cycleTime);
@@ -284,8 +369,8 @@
             
             function handleProgress(timeFraction){
                 let fraction = Math.min(timeFraction, 1);
-                gameStateVar = Math.pow(fraction, 2) * ((1.5 + 1) * fraction - 1.5);
-                gameStateVar = Math.max(gameStateVar, 0);
+                bgAudioLevel = Math.pow(fraction, 6);
+                textSpeechAudio = Math.pow(fraction, 7.5);
             }
             
             function handleSine(){
@@ -320,6 +405,25 @@
                     }
                 }
                 
+                if(launchWindows){
+                    if(runGame === true){
+                        runGame = false;
+                        stopVideos();
+                    }
+                    windowOpenWaitTimer += deltaTime;
+                    if(windowOpenWaitTimer > windowOpenWaitTime){
+                        windowOpenWaitTimer = 0;
+                        windowOpenWaitTime /= windowOpenDivider;
+                        launchImageWindow(urls[windowIndex]);
+                        windowIndex++;
+                        if(windowIndex >= urls.length){
+                            launchWindows = false;
+                            launchedWindows = true;
+
+                        }
+                    }
+                }
+                
                 if(runGame === false)
                     return;
                 
@@ -343,16 +447,16 @@
                 if(flock){
                     flock.run();
                 }
-                else if(t > 0.5){
+                else if(t > 0.4){
                     makeFlock();
                 }
                 
-                if(controls.getRaycast() === false && t > 0.75){
+                if(controls.getRaycast() === false && t > 0.7){
                     controls.setRaycast(true);
                     createReticle();
                 }
                 
-                if(t > 0.9){
+                if(t > 0.95){
                     glitch();
                 }
 
@@ -360,35 +464,28 @@
                     launchWindows = true;
                 }
                 
-                if(launchWindows){
-                    windowOpenWaitTimer += deltaTime;
-                    if(windowOpenWaitTimer > windowOpenWaitTime){
-                        windowOpenWaitTimer = 0;
-                        windowOpenWaitTime /= 2.5;
-                        launchImageWindow(urls[windowIndex]);
-                        windowIndex++;
-                        if(windowIndex >= urls.length){
-                            launchWindows = false;
-                            launchedWindows = true;
-                            runGame = false;
 
-                        }
-                    }
-                }
                 
-                if(bgAudio.volume < 1){
-                    bgAudio.volume = 0.01 + gameStateVar;
+                if(bgAudio.volume < 0.9){
+                    bgAudio.volume = bgAudioLevel;
                 } else{
-                    bgAudio.volume = 1;
+                    bgAudio.volume = 0.9;
                 }
                 
                 handleProgress(t);
             }
-                        
-            
             
             function draw(){
                 renderer.render(scene, camera);
+            }
+            
+            function stopVideos(){
+                for(var i = videoArray.length - 1; i >= 0; i--){
+                    document.body.removeChild(videoArray[i]);
+                    delete videoArray[i];
+                    
+                }
+                
             }
 
 			function RunApp() {
@@ -400,6 +497,7 @@
 			}
             
             function init() {
+                console.log("Loading final phase");
                 camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
                 scene = new THREE.Scene();
                 scene.add(camera);
@@ -415,15 +513,15 @@
                 bgAudio.play();
             }
             
-            window.addEventListener('keydown', function(event){if(event.keycode===81) closeAllWindows();});
+//            window.addEventListener('keydown', function(event){if(event.keycode===81) closeAllWindows();});
             
             window.addEventListener( 'resize', onWindowResize, false );
             
-            document.addEventListener('keydown', function(event){ 
-                if(event.keyCode === 220){ 
-                    controls.setCanMove(true);
-                } 
-            });
+//            document.addEventListener('keydown', function(event){ 
+//                if(event.keyCode === 220){ 
+//                    controls.setCanMove(true);
+//                } 
+//            });
 
 			function onWindowResize() {
                 
@@ -432,9 +530,9 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 			}
             
-            init();
+//            init();
 
-			RunApp();
+//			RunApp();
 
 		</script>
 	</body>
